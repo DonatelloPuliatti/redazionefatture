@@ -1,33 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <title>Calcolatrice Home</title>
+    <meta charset="UTF-8">
+    <title>Suite di Donatello Puliatti</title>
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f9;
-            padding-top: 100px;
+            padding-top: 50px;
+            background-color: #f4f4f4;
         }
-        a.button {
+
+        h1 {
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px; /* spazio tra i bottoni */
+        }
+
+        .button {
             display: inline-block;
-            margin: 20px;
-            padding: 15px 30px;
-            background-color: #4CAF50;
+            width: 300px;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #007BFF;
             color: white;
             text-decoration: none;
-            border-radius: 10px;
-            font-size: 18px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
         }
-        a.button:hover {
-            background-color: #45a049;
+
+        .button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1>Benvenuto nella Calcolatrice</h1>
-    <a href="/somma" class="button">Vai alla Somma</a>
-    <a href="/moltiplicazione" class="button">Vai alla Moltiplicazione</a>
+    <h1>Benvenuto nella suite di Donatello Puliatti</h1>
+    <div class="button-container">
+        <a href="/somma" class="button">Somma</a>
+        <a href="/moltiplicazione" class="button">Prodotto</a>
+        <a href="/redazionefatture" class="button">Redazione fatture</a>
+        <a href="/gestionalefatture" class="button">Gestionale fatture</a>
+        <a href="/riduzioneformulelogiche" class="button">Riduzione in formule logiche</a>
+        <a href="/configurazionegiuridicafattispecie" class="button">Configurazione giuridica fattispecie</a>
+    </div>
 </body>
 </html>
+
 

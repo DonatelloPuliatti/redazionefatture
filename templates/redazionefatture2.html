@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Moltiplicazione</title>
+    <title>Redazione fatture</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -67,11 +67,26 @@
 </head>
 
 <body>
-    <h1>Moltiplica due numeri</h1>
+    <h1>Compila i seguenti dati</h1>
     <form method="POST">
-        <input type="text" name="numero1" placeholder="Numero 1"><br><br>
-        <input type="text" name="numero2" placeholder="Numero 2"><br><br>
-        <input type="submit" value="Calcola Moltiplicazione">
+        <input type="text" name="nomesoggetto" placeholder="Nome e Cognome / Ragione sociale"><br><br>
+        <input type="text" name="indirizzosoggetto" placeholder="Indirizzo / Sede"><br><br>
+        <input type="text" name="partitaivacodicefiscale" placeholder="Partita IVA / Codice fiscale"><br><br>
+        <input type="text" name="descrizioneattivita" placeholder="Descrizione attività"><br><br>
+        <input type="text" name="numeronotula" placeholder="Numero della notula"><br><br>
+        <input type="text" name="datanotula" placeholder="Data della notula"><br><br>
+        <label>Seleziona la tipologia di dato numerico che vuoi inserire:</label><br><br>
+        <div class="radio-group">
+            <label><input type="radio" name="tipologiadato" value="consulenza" > Compenso con ritenuta IRPEF</label><br>
+            <label><input type="radio" name="tipologiadato" value="rappresentanza"> Compenso senza ritenuta IRPEF</label><br>
+            <label><input type="radio" name="tipologiadato" value="parere"> Totale con ritenuta IRPEF</label><br>
+            <label><input type="radio" name="tipologiadato" value="altro"> Totale senza ritenuta IRPEF</label>
+        </div>
+        <br><br>
+        <input type="text" name="datoeconomico" placeholder="Inserisci il dato numerico (per i decimali usa il punto)"><br><br>
+        <input type="submit" value="Esponi gli elementi economici della fattura">
+        <input type="submit" value="Genera il file .docx della notula">
+        <input type="submit" value="Genera il file .pdf della notula">
     </form>
 
     {% if risultato is not none %}
@@ -85,4 +100,3 @@
     </div>
 </body>
 </html>
-

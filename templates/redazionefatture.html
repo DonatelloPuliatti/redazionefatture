@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redazione fatture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-top: 20px;
+        }
+
+        form {
+            width: 1250px;
+            max-width: 95%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        fieldset {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fdfdfd;
+        }
+
+
+
+        legend {
+            font-weight: bold;
+            color: #4CAF50;
+            padding: 0 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .radio-group label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .home-button-container {
+            width: 1000px;
+            max-width: 95%;
+            margin: 0 auto 40px auto;
+            text-align: center;
+        }
+
+        .button-link {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-block;
+        }
+
+        .button-link:hover {
+            background-color: #e53935;
+        }
+
+        @media (max-width: 800px) {
+            .row {
+                flex-direction: column;
+            }
+        }
+
+        .fattura-table {
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .fattura-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        .fattura-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .fattura-table tr td:first-child {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .fattura-table tr:last-child td {
+            background-color: #f0f0f0;
+        }
+
+        .fieldset-large input[type="text"] {
+            width: 150%;
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border: 1px solid #4CAF50;
+            border-radius: 50%;
+            color: #4CAF50;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 14px;
+        }
+        .info-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            background-color: #f9f9f9;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 4px;
+            top: 25px;
+            left: 0;
+            white-space: pre-line;
+            z-index: 10;
+            width: 220px;
+        }
+        .fieldset-container {
+            position: relative;
+            display: inline-block;
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <h1>Applicativo per la redazione delle fatture degli avvocati</h1>
+    <form method="POST">
+
+        <!-- Riga 1: Dati anagrafici + Dettagli notula -->
+        <div class="row">
+            <fieldset>
+                <legend>Dati anagrafici del debitore</legend>
+                <input type="text" name="nomedebitore" placeholder="Nome e Cognome / Ragione sociale" required>
+                <input type="text" name="indirizzodebitore" placeholder="Indirizzo / Sede" required>
+                <input type="text" name="partitaivacodicefiscaledebitore" placeholder="Partita IVA / Codice fiscale" required>
+            </fieldset>
+
+            <fieldset>
+                <legend>Dati anagrafici del creditore</legend>
+                <input type="text" name="nomecreditore" placeholder="Nome e Cognome / Ragione sociale" required>
+                <input type="text" name="indirizzocreditore" placeholder="Indirizzo / Sede" required>
+                <input type="text" name="partitaivacodicefiscalecreditore" placeholder="Partita IVA / Codice fiscale" required>
+            </fieldset>
+
+            <fieldset>
+                <legend>Dettagli notula</legend>
+                <input type="text" name="descrizioneattivita" placeholder="Descrizione attività" required>
+                <input type="text" name="numeronotula" placeholder="Numero della notula" required>
+                <input type="text" name="datanotula" placeholder="Data della notula" required>
+            </fieldset>
+        </div>
+
+        <!-- Riga 2: Tipologia + Importo -->
+        <div class="row">
+            <fieldset class="fieldset-container">
+                <legend>
+                    Tipologia della base di calcolo
+                    <span class="info-icon" data-tooltip="Le opzioni indicano cosa comprende la base di calcolo da cui derivano gli altri elementi della fattura">i</span>
+                </legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="tipologia" value="compenso_coniva_conpa"> L'importo comprende sia l'IVA se dovuta, sia la CPA al 4% <br> N.B: l'importo coincide cioè con il totale fattura: le spese generali (se dovute) sono infatti già soggette ad IVA (se dovuta) e vanno scorporate dal compenso </label>
+                    <label><input type="radio" name="tipologia" value="compenso_senzaiva_senzacpa"> L'importo non comprende né l'IVA, né la CPA al 4% <br> N.B:  all'importo bisogna poi aggiungere le spese generali (se dovute), l'IVA (se dovuta) e la CPA </label>
+                    <label><input type="radio" name="tipologia" value="compenso_coniva_senzacpa" required> L'importo comprende l'IVA se dovuta, ma non la CPA al 4% <br> N.B: all'importo bisogna applicare la sola CPA: le spese generali (se dovute) sono infatti già soggette ad IVA (se dovuta) e vanno scorporate dal compenso </label>
+                    <label><input type="radio" name="tipologia" value="compenso_concpa_senzaiva"> L'importo comprende la CPA al 4%, ma non l'IVA <br> N.B: all'importo bisogna applicare le spese generali (se dovute) e l'IVA (se dovuta)</label>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="row">
+            <fieldset class="fieldset-container">
+                <legend>
+                    Base di calcolo (€)
+                    <span class="info-icon" data-tooltip="Usa il punto per separare la parte intera e la parte decimale">i</span>
+                </legend>
+                <input type="text" name="importo" placeholder="Inserisci valore" required>
+            </fieldset>
+
+            <fieldset class="fieldset-container">
+                <legend>
+                    Ritenuta IRPEF
+                    <span class="info-icon" data-tooltip="La ritenuta IRPEF si applica quando si emette fattura ad un sostituto d'imposta. In regime forfettario non si applica la ritenuta IRPEF">i</span>
+                </legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="ritenutairpef" value= 0.2 required> 20%</label>
+                    <label><input type="radio" name="ritenutairpef" value= 0 > 0%</label>
+                </div>
+            </fieldset>
+
+
+
+            <fieldset>
+                <legend>Aliquota IVA</legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="percentualeiva" value= 0.22 required> 22%</label>
+                    <label><input type="radio" name="percentualeiva" value= 0.10 > 10%</label>
+                    <label><input type="radio" name="percentualeiva" value= 0.04 > 4%</label>
+                    <label><input type="radio" name="percentualeiva" value= 0 > 0%</label>
+                </div>
+            </fieldset>
+
+            <fieldset class="fieldset-container">
+                <legend>
+                    Spese generali
+                    <span class="info-icon" data-tooltip="Le spese generali, quando previste, sono sempre soggette ad IVA">i</span>
+                </legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="spesegenerali" value= 0.15 required> 15%</label>
+                    <label><input type="radio" name="spesegenerali" value= 0.125 > 12,5%</label>
+                    <label><input type="radio" name="spesegenerali" value= 0 > 0%</label>
+                </div>
+            </fieldset>
+
+            <fieldset class="fieldset-container">
+                <legend>
+                    Anticipazioni (€)
+                    <span class="info-icon" data-tooltip="Usa il punto per separare la parte intera e la parte decimale">i</span>
+                </legend>
+                <input type="text" name="anticipazioni" placeholder="Inserisci valore" required>
+            </fieldset>
+
+
+
+
+            <fieldset class="fieldset-container">
+                <legend>
+                    Bollo (€)
+                    <span class="info-icon" data-tooltip="Il bollo si applica in regime forfettario e si aggiunge al totale fattura">i</span>
+                </legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="bollo" value= 0 required> 0 </label>
+                    <label><input type="radio" name="bollo" value= 2 > 2 </label>
+                </div>
+            </fieldset>
+
+
+
+        </div>
+
+        <!-- Checkbox: Solo esposizione economica -->
+        <div class="row">
+            <fieldset>
+                <legend>Opzione</legend>
+                <label style="display: flex; align-items: center; gap: 10px; font-weight: normal;">
+                    <input type="checkbox" name="solodatoeconomico" value="true"> Sono interessato alla sola esposizione economica degli elementi della fattura <br> N.B.: se non si seleziona la casella, l'applicativo genererà un file .docx della notula
+                </label>
+            </fieldset>
+        </div>
+
+        <!-- Sezione bottoni -->
+        <div class="buttons">
+            <input type="submit" name="azione" value="Procedi">
+        </div>
+    </form>
+
+    {% if risultato is not none %}
+        <div class="result">
+            <h3>  </h3>
+            {{ risultato | safe }}
+        </div>
+    {% endif %}
+
+    {% if risultatobis is not none %}
+        <div class="result">
+            <h3>  </h3>
+            {{ risultatobis | safe }}
+        </div>
+    {% endif %}
+
+    <br><br>
+
+    <!-- Pulsante Torna alla Home -->
+    <div class="home-button-container">
+        <a href="/" class="button-link">Torna alla Home</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const soloDatoEconomico = document.querySelector('input[name="solodatoeconomico"]');
+
+            const campiDaGestire = [
+                'nomedebitore',
+                'indirizzodebitore',
+                'partitaivacodicefiscaledebitore',
+                'nomecreditore',
+                'indirizzocreditore',
+                'partitaivacodicefiscalecreditore',
+                'descrizioneattivita',
+                'numeronotula',
+                'datanotula'
+            ].map(name => document.querySelector(`input[name="${name}"]`));
+
+            soloDatoEconomico.addEventListener('change', function () {
+                const attiva = !this.checked; // Se è spuntato, disattiva required
+
+                campiDaGestire.forEach(campo => {
+                    if (attiva) {
+                        campo.setAttribute('required', 'required');
+                    } else {
+                        campo.removeAttribute('required');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+
