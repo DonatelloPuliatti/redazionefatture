@@ -59,7 +59,7 @@ def redazionefatture():
             totalefattura = round(imponibileiva + iva, 2)
             bollo = round(float(bollo), 2)
             ritenuta = round(float(ritenutairpef) * (compenso + spesegenerali), 2)
-            importodapagare = round(totalefattura - ritenuta - anticipazioni + bollo, 2)
+            importodapagare = round(totalefattura - ritenuta + anticipazioni + bollo, 2)
 
             if tipologia == "compenso_coniva_conpa" and totalefattura > importo: # Questo blocco di codice serve per scalare il compenso quando es. totalefattura = 1000.01 dopo i vari arrotondamenti
                 compenso = compenso - 0.01
@@ -119,7 +119,7 @@ def redazionefatture():
                     doc.render(context)
 
                     # 4. Salva il nuovo documento
-                    
+
                     os.makedirs('static/uploads', exist_ok=True)
                     doc.save("static/uploads/bozzadinotula.docx")
                     risultatobis = '<div class="result"><a class="button-link" href="/static/uploads/bozzadinotula.docx" download style="background-color: #28a745; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Clicca qui per scaricare la bozza di notula</a></div>'
