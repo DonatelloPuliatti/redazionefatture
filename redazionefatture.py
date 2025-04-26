@@ -70,7 +70,7 @@ def redazionefatture():
                 totalefattura = round(imponibileiva + iva, 2)
                 bollo = round(float(bollo), 2)
                 ritenuta = round(float(ritenutairpef) * (compenso + spesegenerali), 2)
-                importodapagare = round(totalefattura - ritenuta - anticipazioni + bollo, 2)
+                importodapagare = round(totalefattura - ritenuta + anticipazioni + bollo, 2)
 
 
 
