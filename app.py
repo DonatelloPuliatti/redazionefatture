@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
-from somma import *
-from moltiplicazione import *
 from redazionefatture import *
+from redazionefatturesenzafile import *
 
 app = Flask(__name__)
 
@@ -9,18 +8,24 @@ app = Flask(__name__)
 def home():
     return render_template("home.html")
 
-@app.route("/somma", methods=["GET", "POST"])
-def somma_route():
-    return somma()
+from flask import redirect, url_for
 
-@app.route("/moltiplicazione", methods=["GET", "POST"])
-def moltiplicazione_route():
-    return moltiplicazione()
+@app.route("/login_redazionefatture", methods=["GET", "POST"])
+def login_redazionefatture():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == "Federico2017":
+            return redirect(url_for('redazionefatture_route'))
+        else:
+            return "Password errata. <a href='/login_redazionefatture'>Riprova</a>."
+    return render_template("login_redazionefatture.html")
 
 @app.route("/redazionefatture", methods=["GET", "POST"])
 def redazionefatture_route():
     return redazionefatture()
-
+@app.route("/redazionefatturesenzafile", methods=["GET", "POST"])
+def redazionefatturesenzafile_route():
+    return redazionefatturesenzafile()
 @app.route("/gestionalefatture", methods=["GET", "POST"])
 def gestionalefatture():
     return render_template("placeholder.html", titolo="Funzione in lavorazione")
