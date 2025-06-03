@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Applicativo per il calcolo dei compensi secondo il DM 30 maggio 2002</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            color: #4CAF50;
+            margin-top: 20px;
+        }
+
+        form {
+            width: 1250px;
+            max-width: 95%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        fieldset {
+            flex: 1;
+            min-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #fdfdfd;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-weight: bold;
+            color: #4CAF50;
+            padding: 0 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .radio-group label {
+            display: block;
+            margin-bottom: 0;
+            line-height: 1.4;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 200px;
+            display: block;
+            margin: 20px auto;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: #4CAF50;
+        }
+
+        .fieldset-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #altro-container {
+            display: none; /* Inizialmente nascosto */
+            margin-top: 10px;
+        }
+
+        #altro-container input {
+            width: 100%; /* Uniformare con gli altri input */
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        #altro-container input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .errore {
+            color: red;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2em;
+            margin: 20px auto;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Stile coerente con altri input */
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .input-field:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+    <h2>Applicativo per il calcolo dei compensi dei periti e dei consulenti tecnici secondo il D.M. 30 maggio 2002</h2>
+
+    <form method="POST" id="form generale">
+        <div class="row">
+            <fieldset class="fieldset-container">
+                <legend>
+                    Seleziona la fattispecie di interesse (ove non diversamente precisato, gli articoli riguardano la tabella allegata al D.M. 30 maggio 2002). <br>
+                    Dopo avere effettuato la selezione, clicca su 'Procedi' affinchè la selezione venga acquisita dal sistema. <br>
+                    Si aprirà un nuovo form in fondo alla pagina: compilalo e clicca su 'Vai all'esito'.
+                </legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="tipologia" value="vacazione1" required > (Art. 1, seconda proposizione) <br> Fattispecie in cui non é applicabile l'art. 1, prima proposizione, D.M. 30 giugno 2002, secondo cui ' [...] per la determinazione degli onorari a percentuale si ha riguardo per la perizia al valore del bene o di altra utilità oggetto dell'accertamento determinato sulla base di elementi obiettivi risultanti dagli atti del processo e per la consulenza tecnica al valore della controversia [...] <br> N.B. L'art. 1, seconda proposizione, dispone che ' [...] se non è possibile applicare i criteri predetti gli onorari sono commisurati al tempo ritenuto necessario allo svolgimento dell'incarico e sono determinati in base alle vacazioni [...]' </label>
+                    <label><input type="radio" name="tipologia" value="art 2" > (Art. 2) <br> Perizia o consulenza tecnica in materia amministrativa, contabile e fiscale </label>
+                    <label><input type="radio" name="tipologia" value="art 3" > (Art. 3) <br> Perizia o consulenza tecnica in materia di valutazione di aziende, enti patrimoniali, situazioni aziendali, patrimoni, avviamento, diritti a titolo di risarcimento di danni, diritti aziendali e industriali nonchè relativi a beni mobili in genere </label>
+                    <label><input type="radio" name="tipologia" value="art 4" > (Art. 4) <br> Perizia o consulenza tecnica in materia di bilancio e relativo conto dei profili e perdite  </label>
+                    <label><input type="radio" name="tipologia" value="art 5" > (Art. 5) <br> Perizia o consulenza tecnica in materia di inventari, rendiconti e situazioni contabili </label>
+                    <label><input type="radio" name="tipologia" value="art 6 c 1" > (Art. 6 c. 1) <br> Perizia o consulenza tecnica in materia di avarie comuni  </label>
+                    <label><input type="radio" name="tipologia" value="art 6 c 2" > (art. 6 c. 2) <br> Perizia o consulenza tecnica in materia di avarie particolari  </label>
+                    <label><input type="radio" name="tipologia" value="art 7" > (Art. 7) <br> Perizia o consulenza tecnica espletata con metodo attuariale in materia di ricostruzione di posizioni retributive o previdenziali, di prestiti, di nude proprietà e usufrutti, di ammortamenti finanziari, di adeguamento al costo della vita e rivalutazione monetaria </label>
+                    <label><input type="radio" name="tipologia" value="art 8" > (Art. 8) <br> Perizia o consulenza tecnica in materia di accertamento di stato di equilibrio tecnico finanziario di gestioni previdenziali e assistenziali  </label>
+                    <label><input type="radio" name="tipologia" value="art 9" > (Art. 9) <br> Perizia o consulenza tecnica in materia di di opere di pittura, scultura e simili  </label>
+                    <label><input type="radio" name="tipologia" value="art 10" > (Art. 10) <br> Perizia o consulenza tecnica in materia di accertamento di retribuzioni o di contributi previdenziali, assicurativi, assistenziali e fiscali e ogni altra questione in materia di rapporto di lavoro </label>
+                    <label><input type="radio" name="tipologia" value="art 11" > (Art. 11) <br> Perizia o consulenza tecnica in materia di costruzioni edilizie, impianti industriali, impianti di servizi generali, impianti elettrici, macchine isolate e loro parti, ferrovie, strade e canali, opere idrauliche, acquedotti e fognature, ponti, manufatti isolati e strutture speciali, progetti di bonifica agraria e simili </label>
+                    <label><input type="radio" name="tipologia" value="art 12" > (Art. 12) <br> Perizia o consulenza tecnica in materia di verifica di rispondenza tecnica alle prescrizioni di progetto e/o di contratto, capitolati e norme, di collaudo di lavori e forniture, di misura e contabilità di lavori, di aggiornamento e revisione dei prezzi  </label>
+                    <label><input type="radio" name="tipologia" value="art 13 c 1" > (Art. 13 c. 1) <br> Perizia o consulenza tecnica in materia di estimo </label>
+                    <label><input type="radio" name="tipologia" value="art 13 c 2" > (Art. 13 c. 2) <br> Stima sommaria in materia di estimo </label>
+                    <label><input type="radio" name="tipologia" value="art 14" > (Art. 14) <br> Perizia o consulenza in materia di cave e miniere, minerali, sostanze solide, liquide e gassose  </label>
+                    <label><input type="radio" name="tipologia" value="art 15"  > (Art. 15) <br> Perizia o la consulenza tecnica in materia di valutazione, riparazione e trasformazione di aerei, navi e imbarcazioni e in quella di salvataggio e recuperi   </label>
+                    <label><input type="radio" name="tipologia" value="art 16"  > (Art. 16) <br> Perizia o la consulenza tecnica in materia di funzioni contabili amministrative di case e beni rustici, di curatele di aziende agrarie, di equo canone, di fitto di fondi urbani e rustici, di redazione di stima dei danni da incendio e grandine, di tabelle millesimali e riparto di spese condominiali  </label>
+                    <label><input type="radio" name="tipologia" value="art 17" > (Art. 17) <br> Consulenza tecnica in materia di infortunistica del traffico e della circolazione   </label>
+                    <label><input type="radio" name="tipologia" value="art 18 c 1" > (Art. 18 c. 1) <br> Perizia o consulenza tecnica in materia di esplosivi, di armi, di proiettili, di bossoli e simili   </label>
+                    <label><input type="radio" name="tipologia" value="art 18 c 3" > (Art. 18 c. 3) <br> Perizia o consulenza tecnica in materia di balistica  </label>
+                    <label><input type="radio" name="tipologia" value="art 19" > (Art. 19) <br> Perizia o consulenza tecnica in materia di geomorfologia applicata, idrogeologia, geologia applicata e stabilità dei pendii  </label>
+                    <label><input type="radio" name="tipologia" value="art 20 c 1" > (Art. 20 c. 1) <br> Perizia o consulenza tecnica in materia medico-legale nel caso di immediata espressione del giudizio raccolta a verbale </label>
+                    <label><input type="radio" name="tipologia" value="art 20 c 2" > (Art. 20 c. 2) <br> Perizia o consulenza tecnica in materia medico-legale qualora il parere non possa essere dato immediatamente e venga presentata una relazione scritta </label>
+                    <label><input type="radio" name="tipologia" value="art 21" > (Art. 21) <br> Consulenza tecnica avente ad oggetto accertamenti medici, diagnostici, identificazione di agenti patogeni, riguardanti la persona  </label>
+                    <label><input type="radio" name="tipologia" value="art 22" > (Art. 22) <br> Perizia o consulenza tecnica avente ad oggetto l'esame alcoolimetrico  </label>
+                    <label><input type="radio" name="tipologia" value="art 23" > (Art. 23) <br> Perizia o consulenza tecnica avente ad oggetto la ricerca del tasso percentuale carbossiemoglobinemico  </label>
+                    <label><input type="radio" name="tipologia" value="art 24"  > (Art. 24) <br> Perizia o consulenza tecnica in materia psichiatrica o criminologica  </label>
+                    <label><input type="radio" name="tipologia" value="art 25" > (Art. 25) <br> Perizia o consulenza tecnica avente ad oggetto diagnosi su materiale biologico o su tracce biologiche ovvero indagini biologiche o valutazioni sui risultati di indagini di laboratorio su tracce biologiche  </label>
+                    <label><input type="radio" name="tipologia" value="art 26 c 1" > (Art. 26 c. 1) <br> Perizia o consulenza tecnica avente ad oggetto accertamenti diagnostici su animali nel caso di immediata espressione del giudizio raccolta a verbale  </label>
+                    <label><input type="radio" name="tipologia" value="art 26 c 2" > (Art. 26 c. 2) <br> Perizia o consulenza tecnica avente ad oggetto accertamenti diagnostici su animali qualora il parere non possa essere dato immediatamente e venga presentata una relazione scritta  </label>
+                    <label><input type="radio" name="tipologia" value="art 27 c 1" > (Art. 27 c. 1) <br> Perizia o consulenza tecnica tossicologica su reperti non biologici </label>
+                    <label><input type="radio" name="tipologia" value="art 27 c 2" > (Art. 27 c. 2) <br> Perizia o consulenza tecnica tossicologica su reperti biologici </label>
+                    <label><input type="radio" name="tipologia" value="art 28 c 1" > (Art. 28 c. 1) <br> Perizia o consulenza tecnica chimica-tossicologica avente ad oggetto la ricerca quantitativa o qualitativa completa generale incognita delle sostanze inorganiche, organiche volatili e organiche non volatili nonchè di agenti patogeni  </label>
+                    <label><input type="radio" name="tipologia" value="art 28 c 2" > (Art. 28 c. 2) <br> Perizia o consulenza ecotossicologica volta ad accertare le alterazioni e le impurità di qualsiasi sostanza o ad identificare gli agenti patogeni infettanti, infestanti e inquinanti  </label>
+                    <label><input type="radio" name="tipologia" value="art 28 c 3" > (Art. 28 c. 3) <br> Perizia o consulenza tecnica in materia di inquinamento acustico   </label>
+                    <label><input type="radio" name="tipologia" value="vacazione2" > (art. 4 L. 319/1980 a seguito di C.Cost. 16/2025) <br> Prestazioni non rientranti nell'elenco precedente </label>
+
+                </div>
+            </fieldset>
+        </div>
+        <div class="buttons">
+            <input type="submit" name="azione" value="Procedi">
+        </div>
+    </form>
+
+    {% if selected_option == 'art 2' %}
+
+
+        <form method="POST" id="form art 2" >
+            <input type="hidden" name="form_id" value="form art 2">
+            <div class="row">
+                <fieldset>
+                    <legend>
+                        Importo della perizia/consulenza (€)
+                    </legend>
+                    <input type="number"
+                           name="importo"
+                           min="0"
+                           step="0.01"
+                           placeholder="Inserisci un numero con al massimo due decimali"
+                           class="input-field"
+                           required
+                           oninvalid="this.setCustomValidity('Hai inserito caratteri diversi dai numeri o un numero con più di due decimali')"
+                           oninput="this.setCustomValidity('')">
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Collocazione nel range normativo del compenso
+                    </legend>
+                    <div class="radio-group">
+                        <label><input type="radio" name="compenso" value="0" required onclick="toggleAltro()"> Compenso minimo</label>
+                        <label><input type="radio" name="compenso" value="50" onclick="toggleAltro()"> Compenso medio</label>
+                        <label><input type="radio" name="compenso" value="100" onclick="toggleAltro()"> Compenso massimo</label>
+                    </div>
+
+                    <div id="altro-container">
+                        <label for="altro">Specificare valore:</label>
+                        <input type="number"
+                               id="altro"
+                               name="altro"
+                               min="0"
+                               max="100"
+                               step="0.00000001"
+                        >
+                    </div>
+                </fieldset>
+            </div>
+            <div class="buttons">
+                <input type="submit" name="azione" value="Vai all'esito">
+            </div>
+        </form>
+
+    {% endif %}
+
+</body>
+</html>
+
+
+
+
+
