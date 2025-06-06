@@ -57,11 +57,9 @@
 <body>
     <div class="container">
         <h1>Esito</h1>
-        <p>{{ ipotesiselezionata }}</p>
-        <p>Il valore del bene e/o dell'altra utilità oggetto dell'attività professionale è pari ad € {{ importo }} </p>
-        <p>{{ tipologiacompenso }} </p>
-        <p>Il compenso complessivo è pari ad € <strong style="color:red;">{{ risultato }} </strong></p>
-        <p>Dettaglio delle somme riferite ai vari scaglioni {{ dettaglio | safe }} </p>
+        <pre style="font-family: Arial, sans-serif; font-size: 30px; white-space: pre-wrap; text-align: justify; font-weight: bold; margin-left: 0; padding: 0;">
+        {{esito | safe}}
+        </pre>
         <a href="/compensidm2002">Torna indietro</a>
     </div>
 </body>

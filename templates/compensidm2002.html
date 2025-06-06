@@ -183,7 +183,7 @@
                     Si aprirà un nuovo form in fondo alla pagina: compilalo e clicca su 'Vai all'esito'.
                 </legend>
                 <div class="radio-group">
-                    <label><input type="radio" name="tipologia" value="vacazione1" required > (Art. 1, seconda proposizione) <br> Fattispecie in cui non é applicabile l'art. 1, prima proposizione, D.M. 30 giugno 2002, secondo cui ' [...] per la determinazione degli onorari a percentuale si ha riguardo per la perizia al valore del bene o di altra utilità oggetto dell'accertamento determinato sulla base di elementi obiettivi risultanti dagli atti del processo e per la consulenza tecnica al valore della controversia [...] <br> N.B. L'art. 1, seconda proposizione, dispone che ' [...] se non è possibile applicare i criteri predetti gli onorari sono commisurati al tempo ritenuto necessario allo svolgimento dell'incarico e sono determinati in base alle vacazioni [...]' </label>
+                    <label><input type="radio" name="tipologia" value="vacazione" required > (Art. 1, seconda proposizione, D.M. 30 maggio 2002 e art. 4, L. 319/1980, applicabili secondo quanto derivante da C.Cost. 16/2025) <br> Compenso a vacazione  </label>
                     <label><input type="radio" name="tipologia" value="art 2" > (Art. 2) <br> Perizia o consulenza tecnica in materia amministrativa, contabile e fiscale </label>
                     <label><input type="radio" name="tipologia" value="art 3" > (Art. 3) <br> Perizia o consulenza tecnica in materia di valutazione di aziende, enti patrimoniali, situazioni aziendali, patrimoni, avviamento, diritti a titolo di risarcimento di danni, diritti aziendali e industriali nonchè relativi a beni mobili in genere </label>
                     <label><input type="radio" name="tipologia" value="art 4" > (Art. 4) <br> Perizia o consulenza tecnica in materia di bilancio e relativo conto dei profili e perdite  </label>
@@ -219,7 +219,7 @@
                     <label><input type="radio" name="tipologia" value="art 28 c 1" > (Art. 28 c. 1) <br> Perizia o consulenza tecnica chimica-tossicologica avente ad oggetto la ricerca quantitativa o qualitativa completa generale incognita delle sostanze inorganiche, organiche volatili e organiche non volatili nonchè di agenti patogeni  </label>
                     <label><input type="radio" name="tipologia" value="art 28 c 2" > (Art. 28 c. 2) <br> Perizia o consulenza ecotossicologica volta ad accertare le alterazioni e le impurità di qualsiasi sostanza o ad identificare gli agenti patogeni infettanti, infestanti e inquinanti  </label>
                     <label><input type="radio" name="tipologia" value="art 28 c 3" > (Art. 28 c. 3) <br> Perizia o consulenza tecnica in materia di inquinamento acustico   </label>
-                    <label><input type="radio" name="tipologia" value="vacazione2" > (art. 4 L. 319/1980 a seguito di C.Cost. 16/2025) <br> Prestazioni non rientranti nell'elenco precedente </label>
+
 
                 </div>
             </fieldset>
@@ -229,9 +229,126 @@
         </div>
     </form>
 
+    {% if selected_option == 'vacazione' %}
+        <form method="POST" id="form vacazione" >
+            <input type="hidden" name="form_id" value="form vacazione">
+            <div class="row">
+
+                <fieldset>
+                    <legend>
+                        Numero di vacazioni complete (2h) entro la quarta giornaliera
+                    </legend>
+                    <input type="number"
+                           name="vacazionicompleteentro4"
+                           min="0"
+                           placeholder="Inserisci un numero intero"
+                           class="input-field"
+                           required
+                           oninvalid="this.setCustomValidity('Campo vuoto, oppure hai inserito caratteri diversi dai numeri o un numero decimale')"
+                           oninput="this.setCustomValidity('')">
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Numero di vacazioni complete (2h) oltre la quarta giornaliera
+                    </legend>
+                    <input type="number"
+                           name="vacazionicompleteoltre4"
+                           min="0"
+                           placeholder="Inserisci un numero intero"
+                           class="input-field"
+                           required
+                           oninvalid="this.setCustomValidity('Campo vuoto, oppure hai inserito caratteri diversi dai numeri o un numero decimale')"
+                           oninput="this.setCustomValidity('')">
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Numero di vacazioni incomplete fino ad 1h 15m ed entro la quarta giornaliera
+                    </legend>
+                    <input type="number"
+                           name="vacazionientro1h15mentro4"
+                           min="0"
+                           placeholder="Inserisci un numero intero"
+                           class="input-field"
+                           required
+                           oninvalid="this.setCustomValidity('Campo vuoto, oppure hai inserito caratteri diversi dai numeri o un numero decimale')"
+                           oninput="this.setCustomValidity('')">
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Numero di vacazioni incomplete fino ad 1h 15m ed oltre la quarta giornaliera
+                    </legend>
+                    <input type="number"
+                           name="vacazionientro1h15moltre4"
+                           min="0"
+                           placeholder="Inserisci un numero intero"
+                           class="input-field"
+                           required
+                           oninvalid="this.setCustomValidity('Campo vuoto, oppure hai inserito caratteri diversi dai numeri o un numero decimale')"
+                           oninput="this.setCustomValidity('')">
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Numero di vacazioni incomplete oltre 1h 15m ed entro la quarta giornaliera
+                    </legend>
+                    <input type="number"
+                           name="vacazionioltre1h15mentro4"
+                           min="0"
+                           placeholder="Inserisci un numero intero"
+                           class="input-field"
+                           required
+                           oninvalid="this.setCustomValidity('Campo vuoto, oppure hai inserito caratteri diversi dai numeri o un numero decimale')"
+                           oninput="this.setCustomValidity('')">
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Numero di vacazioni incomplete oltre 1h 15m ed oltre la quarta giornaliera
+                    </legend>
+                    <input type="number"
+                           name="vacazionioltre1h15moltre4"
+                           min="0"
+                           placeholder="Inserisci un numero intero"
+                           class="input-field"
+                           required
+                           oninvalid="this.setCustomValidity('Campo vuoto, oppure hai inserito caratteri diversi dai numeri o un numero decimale')"
+                           oninput="this.setCustomValidity('')">
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Termine di compimento delle operazioni
+                    </legend>
+                    <div class="radio-group">
+                        <label><input type="radio" name="termine" value="entro5" required onclick="toggleAltro()"> Fino a 5 giorni</label>
+                        <label><input type="radio" name="termine" value="da6a15" onclick="toggleAltro()"> Da 6 a 15 giorni</label>
+                        <label><input type="radio" name="termine" value="oltre15" onclick="toggleAltro()"> Più di 15 giorni o non specificato</label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        Svolgimento alla presenza dell'attività giudiziaria
+                    </legend>
+                    <div class="radio-group">
+                        <label><input type="radio" name="ag" value="si" required onclick="toggleAltro()"> SI</label>
+                        <label><input type="radio" name="ag" value="no" onclick="toggleAltro()"> NO</label>
+                    </div>
+                </fieldset>
+
+
+
+            </div>
+            <div class="buttons">
+                <input type="submit" name="azione" value="Vai all'esito">
+            </div>
+        </form>
+    {% endif %}
+
     {% if selected_option == 'art 2' %}
-
-
         <form method="POST" id="form art 2" >
             <input type="hidden" name="form_id" value="form art 2">
             <div class="row">
@@ -276,8 +393,8 @@
                 <input type="submit" name="azione" value="Vai all'esito">
             </div>
         </form>
-
     {% endif %}
+
 
 </body>
 </html>

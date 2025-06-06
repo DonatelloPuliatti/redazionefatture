@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from vacazione import *
 
 app = Flask(__name__)
 
@@ -51,15 +52,14 @@ def compensidm2002():
                 risultatoformattato = f"{risultatoformattato}, ovvero il compenso da corrispondere quando il valore del bene e/o dell'altra utilità oggetto dell'attività professionale è pari ad € 516.456.90. Si tenga presente che nel D.M. non è previsto uno scaglione finale con valore illimitato"
             listarisultati = ["{:.2f}".format(a) for a in listarisultati]
 
-            dettaglio = f""" <br>
-            <br>
-            Primo scaglione (fino a euro 5.164,57):  € <strong>{listarisultati[0]}</strong> <br>
-            Secondo scaglione (da euro 5.164,58 e fino a euro 10.329,14): € <strong>{listarisultati[1]}</strong> <br>
-            Terzo scaglione (da euro 10.329,15 e fino a euro 25.822,84): € <strong>{listarisultati[2]}</strong> <br>
-            Quarto scaglione (da euro 25.822,85 e fino a euro 51.645,69): € <strong>{listarisultati[3]}</strong> <br>
-            Quinto scaglione (da euro 51.645,70 e fino a euro 103.291,38): € <strong>{listarisultati[4]}</strong> <br>
-            Sesto scaglione (da euro 103.291,39 e fino a euro 258.228,45): € <strong>{listarisultati[5]}</strong> <br>
-            Settimo scaglione (da euro 258.228,46 fino e non oltre euro 516.456,90): € <strong>{listarisultati[6]}</strong> <br>          
+            dettaglio = f"""
+Primo scaglione (fino a euro 5.164,57):  € {listarisultati[0]}
+Secondo scaglione (da euro 5.164,58 e fino a euro 10.329,14): € {listarisultati[1]}
+Terzo scaglione (da euro 10.329,15 e fino a euro 25.822,84): € {listarisultati[2]}
+Quarto scaglione (da euro 25.822,85 e fino a euro 51.645,69): € {listarisultati[3]}
+Quinto scaglione (da euro 51.645,70 e fino a euro 103.291,38): € {listarisultati[4]}
+Sesto scaglione (da euro 103.291,39 e fino a euro 258.228,45): € {listarisultati[5]}
+Settimo scaglione (da euro 258.228,46 fino e non oltre euro 516.456,90): € {listarisultati[6]}         
             """
 
             ipotesiselezionata = "La fattispecie selezionata è la 'perizia o consulenza tecnica in materia amministrativa, contabile e fiscale', disciplinata dall'art. 2 D.M. 30 giugno 2002"
@@ -79,8 +79,29 @@ def compensidm2002():
 
             importo = "{:.2f}".format(importo)
 
+            esito = f"""
+{ipotesiselezionata}.<br>
+Il valore del bene e/o dell'altra utilità oggetto dell'attività professionale è pari ad € {importo}.<br>
+{tipologiacompenso}.<br>
+Il compenso complessivo è pari ad € {risultatoformattato}.<br>
+Dettaglio delle parti di compenso riferite ai vari scaglioni {dettaglio}
+"""
 
-            return render_template('risultatocompensidm2002.html', ipotesiselezionata=ipotesiselezionata, importo=importo, tipologiacompenso=tipologiacompenso, dettaglio=dettaglio, risultato=risultatoformattato)
+
+            return render_template('risultatocompensidm2002.html', ipotesiselezionata=ipotesiselezionata, importo=importo, tipologiacompenso=tipologiacompenso, dettaglio=dettaglio, risultato=risultatoformattato, esito=esito )
+
+        if form_id == 'form vacazione':
+            return vacazione()
+
+
+
+
+
+
+
+
+
+
 
     return render_template('compensidm2002.html', selected_option=selected_option)
 
