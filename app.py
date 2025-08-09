@@ -3,6 +3,7 @@ from flask import redirect, url_for
 from redazionefatture import *
 from redazionefatturesenzafile import *
 from compensidm2002 import *
+from borsa import *
 
 app = Flask(__name__)
 
@@ -34,9 +35,6 @@ def redazionefatturesenzafile_route():
 def gestionalefatture():
     return render_template("placeholder.html", titolo="Funzione in lavorazione")
 
-@app.route("/riduzioneformulelogiche", methods=["GET", "POST"])
-def riduzioneformulelogiche():
-    return render_template("placeholder.html", titolo="Funzione in lavorazione")
 
 @app.route("/configurazionegiuridicafattispecie", methods=["GET", "POST"])
 def configurazionegiuridicafattispecie():
@@ -55,6 +53,20 @@ def login_compensidm2002():
 @app.route("/compensidm2002", methods=["GET", "POST"])
 def compensidm2002_route():
     return compensidm2002()
+
+@app.route("/login_borsa", methods=["GET", "POST"])
+def login_borsa():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == "Federico2017":
+            return redirect(url_for('borsa_route'))
+        else:
+            return "Password errata. <a href='/login_borsa'>Riprova</a>."
+    return render_template("login_borsa.html")
+
+@app.route("/borsa", methods=["GET", "POST"])
+def borsa_route():
+    return borsa()
 
 if __name__ == "__main__":
     app.run(debug=True)
