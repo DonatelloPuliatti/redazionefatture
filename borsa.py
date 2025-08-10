@@ -208,8 +208,13 @@ def borsa():
 
     except Exception as e:
         logging.exception("Errore durante scraping/elaborazione BTP")
-        # Mostra un messaggio gentile a video; controlla i log di Render per lo stacktrace
-        return render_template("borsa.html", risultato=f"Si è verificato un errore: {e}", tabella=None), 500
+        # Mostra l'errore completo anche a video per debug
+        return render_template(
+            "borsa.html",
+            risultato=f"Si è verificato un errore: {type(e).__name__} - {e}",
+            tabella=None
+        ), 500
+
 
     finally:
         try:
