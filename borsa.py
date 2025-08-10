@@ -9,7 +9,7 @@ from datetime import datetime
 import numpy as np
 from flask import request, render_template
 
-def borsa():Aptfile 
+def borsa():
 
     if request.method == "GET":
         return render_template("borsa.html")
