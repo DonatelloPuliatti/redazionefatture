@@ -12,6 +12,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import SessionNotCreatedException, WebDriverException
+from webdriver_manager.chrome import ChromeDriverManager
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,62 +27,61 @@ def _find_first_existing(paths):
     return None
 
 
+
 def make_driver():
-    """
-    Crea un Chrome headless che funzioni su Render (Linux) e in locale (Windows).
-    Su Render (Native) installa con Aptfile: chromium-browser, chromedriver.
-    """
     options = Options()
-    # Headless robusto per container
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument("--lang=it-IT")
     options.add_argument(
         "--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     )
 
-    # Permetti override via env (utile su Render)
-    chrome_bin_env = os.getenv("CHROME_BIN") or os.getenv("GOOGLE_CHROME_BIN")
-    chromedriver_env = os.getenv("CHROMEDRIVER_PATH")
-
-    if os.name == "nt":
-        # --- Windows ---
-        # Se hai già installato Chrome, di solito non serve impostare binary_location.
-        # Metti il tuo path del chromedriver locale se necessario.
-        driver_path = chromedriver_env or "C:/webdriver/chromedriver.exe"
-        service = Service(executable_path=driver_path)
-        return webdriver.Chrome(service=service, options=options)
-
-    # --- Linux (Render) ---
+    # 1) prova con i binari di sistema (Render + Aptfile)
     chrome_candidates = [
-        chrome_bin_env,
+        os.getenv("CHROME_BIN"),
+        os.getenv("GOOGLE_CHROME_BIN"),
         "/usr/bin/chromium-browser",
         "/usr/bin/chromium",
-        "/snap/bin/chromium",
         "/usr/bin/google-chrome",
+        "/snap/bin/chromium",
     ]
     driver_candidates = [
-        chromedriver_env,
+        os.getenv("CHROMEDRIVER_PATH"),
         "/usr/bin/chromedriver",
         "/usr/local/bin/chromedriver",
     ]
 
-    chrome_path = _find_first_existing(chrome_candidates)
-    driver_path = _find_first_existing(driver_candidates)
+    def first_existing(paths):
+        for p in paths:
+            if p and os.path.exists(p):
+                return p
+        return None
 
+    chrome_path = first_existing(chrome_candidates)
     if chrome_path:
         options.binary_location = chrome_path
-    if not driver_path:
-        raise RuntimeError(
-            "Chromedriver non trovato. Assicurati che l'Aptfile contenga 'chromium-browser' e 'chromedriver', "
-            "oppure imposta la variabile d'ambiente CHROMEDRIVER_PATH."
-        )
 
-    service = Service(executable_path=driver_path)
-    return webdriver.Chrome(service=service, options=options)
+    try:
+        # Se esiste un chromedriver di sistema, usalo
+        sys_driver = first_existing(driver_candidates)
+        if sys_driver:
+            service = Service(executable_path=sys_driver)
+            return webdriver.Chrome(service=service, options=options)
+        # Altrimenti lascia che Selenium Manager o WebDriverManager facciano il loro lavoro
+        # (Selenium Manager prova da solo se non forniamo Service)
+        return webdriver.Chrome(options=options)
+
+    except (SessionNotCreatedException, WebDriverException):
+        # 2) fallback: scarica il driver giusto a runtime
+        service = Service(ChromeDriverManager().install())
+        return webdriver.Chrome(service=service, options=options)
+
+
 
 
 # ---------- Route ----------

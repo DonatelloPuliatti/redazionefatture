@@ -5,3 +5,4 @@ selenium
 pandas
 openpyxl
 numpy
+webdriver-manager
