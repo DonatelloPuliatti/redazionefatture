@@ -14,3 +14,10 @@
                 ...(idxScadenza >= 0 ? [{ targets: idxScadenza, type: 'date-eu' }] : []),
                 ...(numericTargets.length ? [{ targets: numericTargets, type: 'num-fmt' }] : [])
             ]
+
+            righe = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
+            for riga in righe:
+                celle = riga.find_elements(By.TAG_NAME, "td")
+                dati = [c.text for c in celle]
+                if dati:
+                    tutti_dati.append(dati)

@@ -2,7 +2,7 @@
 import os
 import logging
 from datetime import datetime
-from bs4 import BeautifulSoup
+
 import numpy as np
 import pandas as pd
 from flask import request, render_template
@@ -103,14 +103,12 @@ def borsa():
             url = f"https://www.borsaitaliana.it/borsa/obbligazioni/mot/btp/lista.html?&page={pagina}"
             driver.get(url)
 
-            html = driver.page_source
-            soup = BeautifulSoup(html, "lxml")
-            for tr in soup.select("table tbody tr"):
-                celle = [td.get_text(strip=True) for td in tr.find_all("td")]
-                if celle:
-                    tutti_dati.append(celle)
-
-
+            righe = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
+            for riga in righe:
+                celle = riga.find_elements(By.TAG_NAME, "td")
+                dati = [c.text for c in celle]
+                if dati:
+                    tutti_dati.append(dati)
 
         # Colonne attese dalla tabella corrente
         colonne = ["ISIN", "Nome", "Prezzo", "Cedola %", "Scadenza", "Altro"]
