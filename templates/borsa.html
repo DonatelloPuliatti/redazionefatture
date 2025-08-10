@@ -199,7 +199,67 @@
     }
 
 
+    /* Più spazio a destra per l'icona */
+    #btpTable.dataTable thead th {
+        position: relative;
+        padding-right: 2rem; /* aumentato */
+    }
+
+    /* Nasconde le frecce di default di DataTables */
+    #btpTable.dataTable thead th.sorting:before,
+    #btpTable.dataTable thead th.sorting:after,
+    #btpTable.dataTable thead th.sorting_asc:before,
+    #btpTable.dataTable thead th.sorting_asc:after,
+    #btpTable.dataTable thead th.sorting_desc:before,
+    #btpTable.dataTable thead th.sorting_desc:after {
+        display: none !important;
+    }
+
+    /* Nuove frecce grandi e centrali */
+    #btpTable.dataTable thead th.sorting::after {
+        content: "⇅";           /* indicatore neutro */
+        font-size: 18px;
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    #btpTable.dataTable thead th.sorting_asc::after {
+        content: "▲";
+        font-size: 20px;
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.95;
+        pointer-events: none;
+    }
+
+    #btpTable.dataTable thead th.sorting_desc::after {
+        content: "▼";
+        font-size: 20px;
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.95;
+        pointer-events: none;
+    }
+
+
+
+
+
     </style>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.8/sorting/date-eu.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.8/sorting/num-fmt.js"></script>
+
 
 </head>
 <body>
@@ -232,9 +292,59 @@
         {% endif %}
 
         {% if tabella %}
-        <div style="margin:20px;">
-            {{ tabella|safe }}
-        </div>
+            <div style="margin:20px; overflow:auto;">
+                {{ tabella|safe }}
+            </div>
+
+            <script>
+                $(function () {
+                    const $table = $('#btpTable');
+                    if (!$table.length) return;
+
+
+                    const headers = Array.from($table.find('thead th')).map(th => th.textContent.trim());
+
+                    const idxISIN     = headers.indexOf('ISIN');
+                    const idxNOME     = headers.indexOf('NOME') !== -1 ? headers.indexOf('NOME')
+                         : headers.findIndex(t => t.toLowerCase().includes('nome'));
+                    const idxScadenza = headers.indexOf('Scadenza') !== -1 ? headers.indexOf('Scadenza')
+                         : headers.findIndex(t => t.toLowerCase().includes('scadenza'));
+
+                    const allIdx = headers.map((_, i) => i);
+                    const numericTargets = allIdx.filter(i => i !== idxISIN && i !== idxNOME && i !== idxScadenza);
+
+                    $table.DataTable({
+                        order: [],
+                        pageLength: 25,
+                        language: { url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json" },
+                        columnDefs: [
+                            ...(idxISIN     >= 0 ? [{ targets: idxISIN,     type: 'string'  }] : []),
+                            ...(idxNOME     >= 0 ? [{ targets: idxNOME,     type: 'string'  }] : []),
+                            ...(idxScadenza >= 0 ? [{ targets: idxScadenza, type: 'date-eu' }] : []),
+                            ...(numericTargets.length ? [{
+                                targets: numericTargets,
+                                type: 'num-fmt',
+                                render: function (data, type, row) {
+                                    if (type === 'sort' || type === 'type') {
+                                        // Se è vuoto, null o NaN, lo trattiamo come null (finisce in fondo)
+                                        if (!data || data.toString().trim().toLowerCase() === 'nan') {
+                                            return null;
+                                        }
+                                        // Sostituisci virgole con punti per il parsing numerico
+                                        return parseFloat(data.toString().replace(',', '.').replace(/ /g, ''));
+                                    }
+                                    return data; // per display lascia invariato
+                                }
+                            }] : [])
+                        ]
+
+                    });
+                });
+            </script>
+
+
+
+
         {% endif %}
 
 </body>

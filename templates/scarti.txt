@@ -1,0 +1,16 @@
+            <script>
+                $(function () {
+                    $('#btpTable').DataTable({
+                        order: [],
+                        pageLength: 25,
+                        language: { url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json" }
+                    });
+                });
+            </script>
+
+            columnDefs: [
+                ...(idxISIN     >= 0 ? [{ targets: idxISIN,     type: 'string'  }] : []),
+                ...(idxNOME     >= 0 ? [{ targets: idxNOME,     type: 'string'  }] : []),
+                ...(idxScadenza >= 0 ? [{ targets: idxScadenza, type: 'date-eu' }] : []),
+                ...(numericTargets.length ? [{ targets: numericTargets, type: 'num-fmt' }] : [])
+            ]

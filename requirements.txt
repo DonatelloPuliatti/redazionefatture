@@ -4,3 +4,4 @@ docxtpl
 selenium
 pandas
 openpyxl
+numpy
