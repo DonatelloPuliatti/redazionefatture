@@ -21,3 +21,24 @@
                 dati = [c.text for c in celle]
                 if dati:
                     tutti_dati.append(dati)
+
+            <form method="POST" id="form generale">
+                <div class="row">
+                    <fieldset class="fieldset-container">
+                        <legend>
+                            Seleziona la tipologia di titoli di tuo interesse
+                        </legend>
+                        <div class="radio-group">
+                            <label><input type="radio" name="tipologia" value="DomesticMOT" required > DomesticMOT   </label>
+                            <label><input type="radio" name="tipologia" value="EuroMOT" > EuroMOT </label>
+                            <label><input type="radio" name="tipologia" value="BOT" > BOT  </label>
+                            <label><input type="radio" name="tipologia" value="BTP" > BTP   </label>
+                            <label><input type="radio" name="tipologia" value="CTZ" > CTZ  </label>
+                            <label><input type="radio" name="tipologia" value="CCT" > CCT  </label>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="buttons">
+                    <input type="submit" name="azione" value="Procedi">
+                </div>
+            </form>
