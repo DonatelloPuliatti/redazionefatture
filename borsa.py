@@ -1,5 +1,9 @@
 # borsa.py
 import os
+import io
+import sys
+import json
+import zipfile
 import logging
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -14,13 +18,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import SessionNotCreatedException, WebDriverException
 
+# webdriver_manager resta come opzione di fallback, ma useremo driver abbinato a CfT
 from webdriver_manager.chrome import ChromeDriverManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("borsa")
 
 
-# ---------- Utils ----------
+# ----------------------- UTIL -----------------------
 def _first_existing(paths):
     """Ritorna il primo path esistente nella lista, altrimenti None."""
     for p in paths:
@@ -29,18 +34,98 @@ def _first_existing(paths):
     return None
 
 
-# ---------- Selenium: compat Windows locale + Linux hosting ----------
+def _ensure_portable_chrome(base_dir="/tmp/cft"):
+    """
+    Scarica Chrome for Testing (browser + chromedriver) in modo portabile (senza root)
+    se non già presente. Restituisce (chrome_binary_path, chromedriver_path).
+
+    Struttura finale:
+      /tmp/cft/
+        chrome/
+          linux64/
+            chrome
+        driver/
+          linux64/
+            chromedriver
+    """
+    import requests  # assicurati che 'requests' sia nel tuo requirements.txt
+
+    os.makedirs(base_dir, exist_ok=True)
+    chrome_bin = os.path.join(base_dir, "chrome", "linux64", "chrome")
+    driver_bin = os.path.join(base_dir, "driver", "linux64", "chromedriver")
+
+    if os.path.exists(chrome_bin) and os.path.exists(driver_bin):
+        return chrome_bin, driver_bin
+
+    # 1) Otteniamo la lista delle versioni "buone"
+    #    (JSON ufficiale Google Chrome for Testing)
+    index_url = "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+    logger.info("Scarico indice Chrome for Testing...")
+    r = requests.get(index_url, timeout=30)
+    r.raise_for_status()
+    data = r.json()
+
+    # 2) Prendiamo l'ultima versione stabile dall'array (di solito è già ordinato crescente)
+    entries = data.get("versions", [])
+    if not entries:
+        raise RuntimeError("Indice Chrome for Testing vuoto.")
+
+    latest = entries[-1]  # ultima voce
+    version = latest["version"]
+
+    # Helper per pescare il download giusto per linux64
+    def _find_url(pkg_key):
+        for item in latest["downloads"].get(pkg_key, []):
+            if item.get("platform") == "linux64":
+                return item["url"]
+        return None
+
+    chrome_url = _find_url("chrome")
+    driver_url = _find_url("chromedriver")
+    if not chrome_url or not driver_url:
+        raise RuntimeError("URL Chrome/Chromedriver linux64 non trovati nell'indice CfT.")
+
+    # 3) Scarichiamo e scompattiamo i pacchetti zip
+    def _download_and_extract(url, target_dir):
+        os.makedirs(target_dir, exist_ok=True)
+        logger.info(f"Scarico: {url}")
+        resp = requests.get(url, timeout=120)
+        resp.raise_for_status()
+        with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+            zf.extractall(target_dir)
+
+    # chrome va in base_dir/chrome/
+    _download_and_extract(chrome_url, os.path.join(base_dir, "chrome"))
+    # driver va in base_dir/driver/
+    _download_and_extract(driver_url, os.path.join(base_dir, "driver"))
+
+    # Percorsi finali
+    if not os.path.exists(chrome_bin):
+        raise RuntimeError("Chrome portabile non trovato dopo l'estrazione.")
+    if not os.path.exists(driver_bin):
+        raise RuntimeError("Chromedriver portabile non trovato dopo l'estrazione.")
+
+    # Assicuriamoci che siano eseguibili
+    try:
+        os.chmod(chrome_bin, 0o755)
+        os.chmod(driver_bin, 0o755)
+    except Exception:
+        pass
+
+    logger.info(f"Chrome for Testing pronto (v{version}) in {chrome_bin}")
+    logger.info(f"Chromedriver abbinato in {driver_bin}")
+    return chrome_bin, driver_bin
+
+
+# ----------------------- SELENIUM -----------------------
 def make_driver():
     """
-    Crea un driver Chrome headless.
-    - Se trova Chrome/Chromium nei percorsi noti, lo usa.
-    - Se non lo trova, prova a installare automaticamente Chromium (apt).
-    - Per il driver:
-        * usa un chromedriver di sistema se presente
-        * altrimenti scarica il driver compatibile con webdriver_manager
+    Avvia un Chrome headless in modo robusto:
+      1) Se trova Chrome/Chromium nel sistema, lo usa.
+      2) Altrimenti scarica Chrome for Testing (portabile) + chromedriver abbinato sotto /tmp/cft.
+      3) Se fallisce, tenta webdriver_manager come ulteriore fallback per il driver.
     """
     options = Options()
-    # Modalità compatibile coi server headless
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -66,72 +151,48 @@ def make_driver():
         "/usr/local/bin/chromedriver",
     ]
 
-    # 1) Trova Chrome/Chromium già presente
     chrome_path = _first_existing(chrome_candidates)
-    if chrome_path:
-        logger.info(f"Trovato browser: {chrome_path}")
-    else:
-        # 2) Prova ad installare Chromium automaticamente (hosting Linux con apt)
-        logger.warning("Chrome/Chromium non trovato. Provo a installare Chromium...")
-        try:
-            import subprocess
-
-            # apt-get update
-            res = subprocess.run(
-                ["apt-get", "update"],
-                check=False,
-                capture_output=True,
-                text=True,
-            )
-            logger.info(f"apt-get update -> rc={res.returncode}")
-
-            # tenta chromium-browser, poi chromium
-            for pkg, path in (("chromium-browser", "/usr/bin/chromium-browser"),
-                              ("chromium", "/usr/bin/chromium")):
-                try:
-                    res = subprocess.run(
-                        ["apt-get", "install", "-y", pkg],
-                        check=True,
-                        capture_output=True,
-                        text=True,
-                    )
-                    logger.info(f"Installato {pkg} -> rc={res.returncode}")
-                    if os.path.exists(path):
-                        chrome_path = path
-                        break
-                except subprocess.CalledProcessError as e:
-                    logger.warning(f"Installazione {pkg} non riuscita: rc={e.returncode}")
-
-            if not chrome_path:
-                raise RuntimeError(
-                    "Impossibile installare Chromium automaticamente. "
-                    "Verifica i permessi (root) o imposta CHROME_BIN/GOOGLE_CHROME_BIN."
-                )
-
-        except Exception as e:
-            raise RuntimeError(f"Installazione Chromium fallita: {e}")
-
-    options.binary_location = chrome_path
-
-    # 3) Prova a usare un chromedriver di sistema, altrimenti scarica via webdriver_manager
     sys_driver = _first_existing(driver_candidates)
-    try:
-        if sys_driver:
-            logger.info(f"Uso chromedriver di sistema: {sys_driver}")
-            service = Service(executable_path=sys_driver)
-            return webdriver.Chrome(service=service, options=options)
 
-        logger.info("Scarico chromedriver con webdriver_manager...")
+    # Caso A: abbiamo già un browser di sistema
+    if chrome_path:
+        logger.info(f"Trovato browser di sistema: {chrome_path}")
+        options.binary_location = chrome_path
+        try:
+            if sys_driver:
+                logger.info(f"Uso chromedriver di sistema: {sys_driver}")
+                service = Service(executable_path=sys_driver)
+                return webdriver.Chrome(service=service, options=options)
+            else:
+                # Tenta Selenium Manager (se disponibile) oppure webdriver_manager
+                logger.info("Chromedriver di sistema non trovato: provo webdriver_manager...")
+                service = Service(ChromeDriverManager().install())
+                return webdriver.Chrome(service=service, options=options)
+        except (SessionNotCreatedException, WebDriverException) as e:
+            logger.warning(f"Avvio con browser di sistema fallito: {e}. Provo CfT portabile...")
+
+    # Caso B: nessun browser di sistema o avvio fallito → Chrome for Testing portabile
+    try:
+        chrome_portable, driver_portable = _ensure_portable_chrome("/tmp/cft")
+        options.binary_location = chrome_portable
+        service = Service(executable_path=driver_portable)
+        logger.info("Avvio Chrome for Testing portabile...")
+        return webdriver.Chrome(service=service, options=options)
+    except Exception as e:
+        logger.exception(f"Fallback CfT portabile fallito: {e}")
+
+    # Caso C: estremo fallback → proviamo comunque webdriver_manager senza binary_location
+    try:
+        logger.info("Ultimo tentativo: webdriver_manager con binary di default...")
         service = Service(ChromeDriverManager().install())
         return webdriver.Chrome(service=service, options=options)
-
-    except (SessionNotCreatedException, WebDriverException) as e:
-        msg = f"Errore avvio Chrome: {e}"
+    except Exception as e:
+        msg = f"Impossibile avviare Chrome (tutti i tentativi falliti): {e}"
         logger.exception(msg)
         raise RuntimeError(msg)
 
 
-# ---------- Route ----------
+# ----------------------- ROUTE -----------------------
 def borsa():
     if request.method == "GET":
         return render_template("borsa.html")
@@ -232,7 +293,7 @@ def borsa():
             "Guadagno medio netto",
         ]
 
-        # Salvataggio XLSX: preferisci /tmp se scrivibile (hosting tipo Render)
+        # Salvataggio XLSX
         output_path = "/tmp/btp_dati.xlsx" if os.access("/tmp", os.W_OK) else "btp_dati.xlsx"
         df[colonne_da_esportare].to_excel(output_path, index=False)
 
