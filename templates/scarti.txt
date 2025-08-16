@@ -42,3 +42,25 @@
                     <input type="submit" name="azione" value="Procedi">
                 </div>
             </form>
+
+                    <li><strong>ISIN</strong>: codice identificativo del titolo</li>
+                    <li><strong>Ced. (%)</strong>: tasso cedolare semestrale</li>
+                    <li><strong>Scad. </strong>: data di rimborso del titolo</li>
+                    <li><strong>Prezzo (%)</strong>: ultimo prezzo ufficiale</li>
+                    <li><strong>CedANN (%)</strong>: tasso cedolare annuo.</li>
+                    <li><strong>Rend. (%) </strong>: rendimento attuale</li>
+                    <li><strong>GG</strong>: numero di giorni alla scadenza</li>
+                    <li><strong>Ced. (num)</strong>: numero di cedole rimanenti</li>
+                    <li><strong>CedLORDA (€)</strong>: importo lordo della cedola semestrale sulla base di quanto investito</li>
+                    <li><strong>CedNETTA (€)</strong>: importo netto (cioè decurtato della tassa del 12,5%) della cedola semestrale sulla base di quanto investito</li>
+                    <li><strong>RicLORDO-ANN(€)</strong>: ricavato annuo lordo sulla base di quanto investito</li>
+                    <li><strong>RicNETTO-ANN(€) (€)</strong>: ricavato annuo netto (cioè decurtato della tassa del 12,5%) d</li>
+                    <li><strong>RicTOTALE (€)</strong>: ricavo totale alla scadenza</li>
+                    <li><strong>GuadTOT-LORDO (€)</strong>: guadagno totale lordo alla scadenza (ottenuto considerando il solo prezzo d'acquisto)</li>
+                    <li><strong>GuadTOT-NETTO (€)</strong>: guadagno totale netto alla scadenza (ottenuto considerando il prezzo d'acquisto e le tasse)</li>
+                    <li><strong>GuadANN-LORDO (€)</strong>: guadagno annuo lordo alla scadenza (ottenuto rapportando il guadagno totale lordo al tempo rimanente)</li>
+                    <li><strong>GuadANN-NETTO (€)</strong>: guadagno annuo netto alla scadenza (ottenuto rapportando il guadagno totale netto al tempo rimanente)</li>
+
+                    <small id="hint-investimento">Usa il punto come separatore decimale (es. 10000.50). Le virgole vengono convertite automaticamente.</small>
+                    <h3 class="subtitle">Seleziona la tipologia di titoli di tuo interesse</h3>
+                     <label for="investimento">Quanto vuoi investire?</label>
