@@ -2,6 +2,8 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+
+
     <title>Applicativo per effettuare elaborazioni statistiche sui dati ufficiali di borsaitaliana.it</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 0; }
@@ -116,6 +118,8 @@
         .section-card strong {
             color: #4CAF50;   /* stesso verde dei titoli */
         }
+
+
     </style>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
@@ -209,7 +213,7 @@
                                 <li><strong>GuadTOTNTT (€)</strong>: guadagno totale netto alla scadenza (ottenuto considerando il prezzo d'acquisto e le tasse)</li>
                                 <li><strong>GuadLRD12M (€)</strong>: guadagno lordo annuo stimato (ottenuto rapportando il guadagno totale lordo al tempo rimanente)</li>
                                 <li><strong>GuadNTT12M (€)</strong>: guadagno netto annuo stimato (ottenuto rapportando il guadagno totale netto al tempo rimanente)</li>
-                                <li><strong>NaN</strong>: il sistema restituisce questo valore quando non è presente alcun dato (ad es. nei giorni in cui la borsa è aperta, prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
+                                <li><strong>VUOTO</strong>: il sistema restituisce un campo vuoto quando non è presente alcun dato (ad es. nei giorni in cui la borsa è aperta, prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
                             </ul>
                         {% endif %}
                     </section>
@@ -233,53 +237,76 @@
         </div>
 
         <script>
-            $(function () {
-                const $table = $('#btpTable');
-                if (!$table.length) return;
+        $(function () {
+            var $table = $('#btpTable');
+            if (!$table.length) return;
 
-                const headers = Array.from($table.find('thead th')).map(th => th.textContent.trim());
-                const idxISIN     = headers.indexOf('ISIN');
-                const idxNOME     = headers.indexOf('NOME') !== -1 ? headers.indexOf('NOME')
-                                       : headers.findIndex(t => t.toLowerCase().includes('nome'));
-                const idxScadenza = headers.indexOf('Scadenza') !== -1 ? headers.indexOf('Scadenza')
-                                       : headers.findIndex(t => t.toLowerCase().includes('scadenza'));
+    // --- Plugin di ordinamento: numeri con vuoti SEMPRE in fondo ---
+            function toNum(d) {
+                if (d === null || d === undefined) return null;
+                let s = d.toString().trim();
 
-                const allIdx = headers.map((_, i) => i);
-                const numericTargets = allIdx.filter(i => i !== idxISIN && i !== idxNOME && i !== idxScadenza);
+        // tratta stringhe vuote / "NaN" / "-" come vuote
+                if (s === '' || s.toUpperCase() === 'NAN' || s === '-') return null;
 
-                $table.DataTable({
-                    order: [],
-                    pageLength: 25,
-                    language: { url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json" },
-                    columnDefs: [
-                        ...(idxISIN     >= 0 ? [{ targets: idxISIN,     type: 'string'  }] : []),
-                        ...(idxNOME     >= 0 ? [{ targets: idxNOME,     type: 'string'  }] : []),
-                        ...(idxScadenza >= 0 ? [{ targets: idxScadenza, type: 'date-eu' }] : []),
-                        ...numericTargets.map(t => ({
-                            targets: t,
-                            type: 'num-fmt',
-                            render: (data, type, row) => {
-                                if (type === 'sort' || type === 'type') {
-                                    if (typeof data === 'string') {
-                                        const normalized = data.replace(',', '.');
-                                        const val = parseFloat(normalized);
-                                        return Number.isNaN(val) ? data : val;
-                                    }
-                                    return data;
-                                }
-                                return data;
-                            }
-                        }))
-                    ]
-                });
+        // rimuove spazi e simboli non numerici comuni, ma NON tocca il punto decimale
+                s = s.replace(/\s+/g, '').replace('€', '');
+
+        // converte eventuale virgola decimale in punto
+                s = s.replace(',', '.');
+
+                const v = parseFloat(s);
+                return Number.isNaN(v) ? null : v;
+            }
+
+    // Definisce il tipo 'num-empty-last' con asc/desc dedicati
+            $.extend($.fn.dataTableExt.oSort, {
+                'num-empty-last-asc': function (a, b) {
+                    const x = toNum(a), y = toNum(b);
+                    if (x === null && y === null) return 0;
+                    if (x === null) return 1;   // vuoto dopo
+                    if (y === null) return -1;  // valore prima
+                    return x < y ? -1 : (x > y ? 1 : 0);
+                },
+                'num-empty-last-desc': function (a, b) {
+                    const x = toNum(a), y = toNum(b);
+                    if (x === null && y === null) return 0;
+                    if (x === null) return 1;   // vuoto dopo
+                    if (y === null) return -1;  // valore prima
+                    return x < y ? 1 : (x > y ? -1 : 0);
+                }
             });
 
-            // Normalizza virgole -> punto all'invio del form (per compatibilità con Flask)
-            document.getElementById('form-generale')?.addEventListener('submit', function () {
-                const inv = document.getElementById('investimento');
-                if (inv && inv.value) inv.value = inv.value.replace(',', '.');
+    // --- Mappa colonne ---
+            const headers = $table.find('thead th').map(function () {
+                return $(this).text().trim();
+            }).get();
+
+            const colISIN     = headers.indexOf('ISIN');
+            const colNome     = headers.indexOf('Nome');
+            const colScadenza = headers.indexOf('Scadenza');
+
+            const numericTargets = headers
+                .map((_, i) => i)
+                .filter(i => i !== colISIN && i !== colNome && i !== colScadenza);
+
+    // --- Inizializza DataTables ---
+            $table.DataTable({
+                order: [],            // nessun ordinamento iniziale
+                pageLength: 25,
+                columnDefs: [
+                    ...(colISIN     >= 0 ? [{ targets: colISIN,     type: 'string'  }] : []),
+                    ...(colNome     >= 0 ? [{ targets: colNome,     type: 'string'  }] : []),
+                    ...(colScadenza >= 0 ? [{ targets: colScadenza, type: 'date-eu' }] : []),
+                    { targets: numericTargets, type: 'num-empty-last' } // <-- usa il plugin sopra
+                ],
+                language: { url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json" }
             });
+        });
+
         </script>
+
+
     {% endif %}
 
 </body>

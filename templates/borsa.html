@@ -2,6 +2,10 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
     <title>Applicativo per effettuare elaborazioni statistiche sui dati ufficiali di borsaitaliana.it</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 0; }
@@ -116,6 +120,21 @@
         .section-card strong {
             color: #4CAF50;   /* stesso verde dei titoli */
         }
+
+        .dataTables_wrapper { overflow-x: auto; }
+        #btpTable { width: 100% !important; }
+
+        /* Mobile layout */
+        @media (max-width: 768px) {
+            .grid-two-col { flex-direction: column; gap: 14px; }
+            .left-col, .right-col { min-width: 0; flex: 1 1 auto; }
+            .section-card { padding: 12px 14px; }
+            h3 { font-size: 1.05rem; }
+            .radio-inline { flex-direction: column; align-items: flex-start; gap: 8px; }
+            input[type="number"] { max-width: 100%; }
+            .buttons { margin-top: 10px; }
+            .buttons input[type="submit"] { width: 100%; padding: 12px; }
+        }
     </style>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
@@ -209,7 +228,7 @@
                                 <li><strong>GuadTOTNTT (€)</strong>: guadagno totale netto alla scadenza (ottenuto considerando il prezzo d'acquisto e le tasse)</li>
                                 <li><strong>GuadLRD12M (€)</strong>: guadagno lordo annuo stimato (ottenuto rapportando il guadagno totale lordo al tempo rimanente)</li>
                                 <li><strong>GuadNTT12M (€)</strong>: guadagno netto annuo stimato (ottenuto rapportando il guadagno totale netto al tempo rimanente)</li>
-                                <li><strong>NaN</strong>: il sistema restituisce questo valore quando non è presente alcun dato (ad es. nei giorni in cui la borsa è aperta, prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
+                                <li><strong>VUOTO</strong>: il sistema restituisce un campo vuoto quando non è presente alcun dato (ad es. nei giorni in cui la borsa è aperta, prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
                             </ul>
                         {% endif %}
                     </section>
@@ -290,11 +309,12 @@
             $table.DataTable({
                 order: [],            // nessun ordinamento iniziale
                 pageLength: 25,
+                responsive: true,
                 columnDefs: [
-                    ...(colISIN     >= 0 ? [{ targets: colISIN,     type: 'string'  }] : []),
-                    ...(colNome     >= 0 ? [{ targets: colNome,     type: 'string'  }] : []),
-                    ...(colScadenza >= 0 ? [{ targets: colScadenza, type: 'date-eu' }] : []),
-                    { targets: numericTargets, type: 'num-empty-last' } // <-- usa il plugin sopra
+                    ...(colISIN     >= 0 ? [{ targets: colISIN,     type: 'string',  responsivePriority: 2 }] : []),
+                    ...(colNome     >= 0 ? [{ targets: colNome,     type: 'string',  responsivePriority: 1 }] : []),
+                    ...(colScadenza >= 0 ? [{ targets: colScadenza, type: 'date-eu', responsivePriority: 3 }] : []),
+                    { targets: numericTargets, type: 'num-empty-last', responsivePriority: 100 } // usa il plugin definito sopra
                 ],
                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json" }
             });
