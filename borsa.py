@@ -158,14 +158,6 @@ def borsa():
         df["GuadLRD12m (€)"] = df["GuadTOTLRD (€)"] / df["GG"] * 365
         df["GuadNTT12m (€)"] = df["GuadLRD12m (€)"] * 0.875
 
-
-
-
-
-
-
-
-
         # Elimina "Altro" se presente
         if "Altro" in df.columns:
             df = df.drop(columns=["Altro"])
@@ -193,6 +185,9 @@ def borsa():
                     max_length = max(max_length, len(str(cell.value)))
             ws.column_dimensions[col_letter].width = max(12, int(max_length * 1.2))
         wb.save(output_path)
+
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        df = df.fillna('')
 
         # Tabella HTML (id per DataTables)
         tabella_html = df.to_html(
