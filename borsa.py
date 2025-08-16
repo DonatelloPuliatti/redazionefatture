@@ -90,8 +90,9 @@ def borsa():
         return render_template("borsa.html")
 
     tipologia = request.form.get("tipologia")
-    if tipologia != "BTP":
-        return render_template("borsa.html", risultato="Seleziona BTP per eseguire l'elaborazione.", tabella=None)
+    investimento = request.form.get("investimento")
+    investimento = float(investimento.replace(",", "."))
+
 
     driver = None
     try:
@@ -113,12 +114,23 @@ def borsa():
 
 
         # Colonne attese dalla tabella corrente
-        colonne = ["ISIN", "Nome", "Prezzo", "Cedola %", "Scadenza", "Altro"]
+        colonne = ["ISIN", "Nome", "Prezzo", "Cedola (%)", "Scadenza", "Altro"]
         df = pd.DataFrame(tutti_dati, columns=colonne)
 
         # Tipi
         df["ISIN"] = df["ISIN"].astype(str).str.strip().str[0:12]
+
         df["Nome"] = df["Nome"].astype(str)
+
+        df["Cedola (%)"] = (
+            df["Cedola (%)"]
+            .str.replace(".", "", regex=False)
+            .str.replace(",", ".", regex=False)
+        )
+        df["Cedola (%)"] = pd.to_numeric(df["Cedola (%)"], errors="coerce")
+        pd.set_option("display.float_format", lambda x: f"{x:g}")
+
+        df["Scadenza"] = pd.to_datetime(df["Scadenza"], dayfirst=True, errors="coerce").dt.normalize()
 
         # Prezzo e Cedola: da "113.500" o "113,50" a float
         df["Prezzo"] = (
@@ -128,41 +140,31 @@ def borsa():
         )
         df["Prezzo"] = pd.to_numeric(df["Prezzo"], errors="coerce")
 
-        df["Cedola %"] = (
-            df["Cedola %"]
-            .str.replace(".", "", regex=False)
-            .str.replace(",", ".", regex=False)
-        )
-        df["Cedola %"] = pd.to_numeric(df["Cedola %"], errors="coerce")
-        pd.set_option("display.float_format", lambda x: f"{x:g}")
-
-        # Scadenza: date
-        df["Scadenza"] = pd.to_datetime(df["Scadenza"], dayfirst=True, errors="coerce").dt.normalize()
-
-        # Calcoli
-        df["Cedola annuale %"] = df["Cedola %"] * 2
-        df["Rendimento attuale %"] = df["Cedola annuale %"] / df["Prezzo"] * 100
-        df["Rendimento attuale %"] = np.trunc(df["Rendimento attuale %"] * 1000) / 1000
-        df["Prezzo valore nominale € 10 K"] = df["Prezzo"] * 100
-        df["Cedola semestrale su € 10 K"] = df["Cedola %"] * 100
-        df["Cedola semestrale su € 10 K con ritenuta"] = df["Cedola semestrale su € 10 K"] * 0.875
-        df["Cedola annuale su € 10 K"] = df["Cedola annuale %"] * 100
-        df["Cedola annuale su € 10 K con ritenuta"] = df["Cedola annuale su € 10 K"] * 0.875
-
-
         oggi = pd.to_datetime(datetime.today()).normalize()
-        df["Scadenza numerica"] = (df["Scadenza"] - oggi).dt.days
+
+        df["Ced12m (%)"] = df["Cedola (%)"] * 2
+        df["Rend. (%)"] = df["Cedola (%)"] / df["Prezzo"] * 100 * 2
+        df["GG"] = (df["Scadenza"] - oggi).dt.days
         df["Scadenza"] = df["Scadenza"].dt.strftime("%d-%m-%y")
 
-        df["Numero cedole"] = df["Scadenza numerica"] // 182.5 + 1
-        df["Ricavo totale"] = df["Numero cedole"] * df["Cedola %"] + 100
-        df["Guadagno totale lordo"] = df["Ricavo totale"] - df["Prezzo"]
-        df["Guadagno totale netto"] = df["Guadagno totale lordo"] * 0.875
-        df["Guadagno totale netto"] = np.trunc(df["Guadagno totale netto"] * 1000) / 1000
-        df["Guadagno medio lordo"] = df["Guadagno totale lordo"] / df["Scadenza numerica"] * 365
-        df["Guadagno medio lordo"] = np.trunc(df["Guadagno medio lordo"] * 1000) / 1000
-        df["Guadagno medio netto"] = df["Guadagno medio lordo"] * 0.875
-        df["Guadagno medio netto"] = np.trunc(df["Guadagno medio netto"] * 1000) / 1000
+        df["CedNUM"] = df["GG"] // 182.5 + 1
+        df["CedLRD (€)"] = df["Rend. (%)"] / 100 * investimento / 2
+        df["CedNTT (€)"] = df["CedLRD (€)"] * 0.875
+        df["RicLRD12m (€)"] = df["CedLRD (€)"] * 2
+        df["RicNTT12M (€)"] = df["CedLRD (€)"] * 2 * 0.875
+        df["RicTOT (€)"] = (df["CedLRD (€)"] * df["CedNUM"]) + (investimento * 100 / df["Prezzo"])
+        df["GuadTOTLRD (€)"] = df["RicTOT (€)"] - investimento
+        df["GuadTOTNTT (€)"] = df["GuadTOTLRD (€)"] * 0.875
+        df["GuadLRD12m (€)"] = df["GuadTOTLRD (€)"] / df["GG"] * 365
+        df["GuadNTT12m (€)"] = df["GuadLRD12m (€)"] * 0.875
+
+
+
+
+
+
+
+
 
         # Elimina "Altro" se presente
         if "Altro" in df.columns:
@@ -172,16 +174,8 @@ def borsa():
             "ISIN",
             "Nome",
             "Prezzo",
-            "Cedola %",
+            "Cedola (%)",
             "Scadenza",
-            "Cedola annuale %",
-            "Rendimento attuale %",
-            "Numero cedole",
-            "Ricavo totale",
-            "Guadagno totale lordo",
-            "Guadagno totale netto",
-            "Guadagno medio lordo",
-            "Guadagno medio netto",
         ]
 
         # Salvataggio XLSX: preferisci /tmp se scrivibile (Render)

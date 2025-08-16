@@ -64,3 +64,24 @@
                     <small id="hint-investimento">Usa il punto come separatore decimale (es. 10000.50). Le virgole vengono convertite automaticamente.</small>
                     <h3 class="subtitle">Seleziona la tipologia di titoli di tuo interesse</h3>
                      <label for="investimento">Quanto vuoi investire?</label>
+
+                    df["Cedola annuale %"] = df["Cedola %"] * 2
+                    df["Rendimento attuale %"] = df["Cedola annuale %"] / df["Prezzo"] * 100
+                    df["Rendimento attuale %"] = np.trunc(df["Rendimento attuale %"] * 1000) / 1000
+                    df["Prezzo valore nominale € 10 K"] = df["Prezzo"] * 100
+                    df["Cedola semestrale su € 10 K"] = df["Cedola %"] * 100
+                    df["Cedola semestrale su € 10 K con ritenuta"] = df["Cedola semestrale su € 10 K"] * 0.875
+                    df["Cedola annuale su € 10 K"] = df["Cedola annuale %"] * 100
+                    df["Cedola annuale su € 10 K con ritenuta"] = df["Cedola annuale su € 10 K"] * 0.875
+
+                    df["Numero cedole"] = df["Scadenza numerica"] // 182.5 + 1
+                    df["Ricavo totale"] = df["Numero cedole"] * df["Cedola %"] + 100
+                    df["Guadagno totale lordo"] = df["Ricavo totale"] - df["Prezzo"]
+                    df["Guadagno totale netto"] = df["Guadagno totale lordo"] * 0.875
+                    df["Guadagno totale netto"] = np.trunc(df["Guadagno totale netto"] * 1000) / 1000
+                    df["Guadagno medio lordo"] = df["Guadagno totale lordo"] / df["Scadenza numerica"] * 365
+                    df["Guadagno medio lordo"] = np.trunc(df["Guadagno medio lordo"] * 1000) / 1000
+                    df["Guadagno medio netto"] = df["Guadagno medio lordo"] * 0.875
+                    df["Guadagno medio netto"] = np.trunc(df["Guadagno medio netto"] * 1000) / 1000
+
+                    df["CedLRD (€)"] = df["Cedola (%)"] / 100 * investimento

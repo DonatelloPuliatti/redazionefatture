@@ -112,6 +112,10 @@
         input[type=number]::-webkit-outer-spin-button,
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
+
+        .section-card strong {
+            color: #4CAF50;   /* stesso verde dei titoli */
+        }
     </style>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
@@ -188,11 +192,12 @@
                         {% else %}
                             <ul>
                                 <li><strong>ISIN</strong>: codice identificativo del titolo</li>
+                                <li><strong>Nome</strong>: nome del titolo</li>
                                 <li><strong>Cedola (%)</strong>: tasso cedolare semestrale</li>
                                 <li><strong>Scadenza </strong>: data di rimborso del titolo</li>
-                                <li><strong>Prezzo (%)</strong>: ultimo prezzo ufficiale</li>
+                                <li><strong>Prezzo</strong>: ultimo prezzo ufficiale rapportato al valore nominale convenzionalmente fissato a 100</li>
                                 <li><strong>Ced12m (%)</strong>: tasso cedolare annuo.</li>
-                                <li><strong>Rend. (%) </strong>: rendimento attuale</li>
+                                <li><strong>Rend. (%) </strong>: rendimento attuale su base annua</li>
                                 <li><strong>GG</strong>: numero di giorni alla scadenza</li>
                                 <li><strong>CedNUM</strong>: numero di cedole rimanenti</li>
                                 <li><strong>CedLRD (€)</strong>: importo lordo della cedola semestrale sulla base di quanto investito</li>
@@ -204,6 +209,7 @@
                                 <li><strong>GuadTOTNTT (€)</strong>: guadagno totale netto alla scadenza (ottenuto considerando il prezzo d'acquisto e le tasse)</li>
                                 <li><strong>GuadLRD12M (€)</strong>: guadagno lordo annuo stimato (ottenuto rapportando il guadagno totale lordo al tempo rimanente)</li>
                                 <li><strong>GuadNTT12M (€)</strong>: guadagno netto annuo stimato (ottenuto rapportando il guadagno totale netto al tempo rimanente)</li>
+                                <li><strong>NaN</strong>: il sistema restituisce questo valore quando non è presente alcun dato (ad es. nei giorni in cui la borsa è aperta, prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
                             </ul>
                         {% endif %}
                     </section>

@@ -117,7 +117,7 @@ def borsa():
         df = pd.DataFrame(tutti_dati, columns=colonne)
 
         # Tipi
-        df["ISIN"] = df["ISIN"].astype(str)
+        df["ISIN"] = df["ISIN"].astype(str).str.strip().str[0:12]
         df["Nome"] = df["Nome"].astype(str)
 
         # Prezzo e Cedola: da "113.500" o "113,50" a float
@@ -134,19 +134,21 @@ def borsa():
             .str.replace(",", ".", regex=False)
         )
         df["Cedola %"] = pd.to_numeric(df["Cedola %"], errors="coerce")
+        pd.set_option("display.float_format", lambda x: f"{x:g}")
 
         # Scadenza: date
         df["Scadenza"] = pd.to_datetime(df["Scadenza"], dayfirst=True, errors="coerce").dt.normalize()
 
         # Calcoli
         df["Cedola annuale %"] = df["Cedola %"] * 2
+        df["Rendimento attuale %"] = df["Cedola annuale %"] / df["Prezzo"] * 100
+        df["Rendimento attuale %"] = np.trunc(df["Rendimento attuale %"] * 1000) / 1000
         df["Prezzo valore nominale € 10 K"] = df["Prezzo"] * 100
         df["Cedola semestrale su € 10 K"] = df["Cedola %"] * 100
         df["Cedola semestrale su € 10 K con ritenuta"] = df["Cedola semestrale su € 10 K"] * 0.875
         df["Cedola annuale su € 10 K"] = df["Cedola annuale %"] * 100
         df["Cedola annuale su € 10 K con ritenuta"] = df["Cedola annuale su € 10 K"] * 0.875
-        df["Rendimento attuale %"] = df["Cedola annuale %"] / df["Prezzo"] * 100
-        df["Rendimento attuale %"] = np.trunc(df["Rendimento attuale %"] * 1000) / 1000
+
 
         oggi = pd.to_datetime(datetime.today()).normalize()
         df["Scadenza numerica"] = (df["Scadenza"] - oggi).dt.days
