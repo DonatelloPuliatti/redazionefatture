@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moltiplicazione</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-top: 20px;
+        }
+
+        form {
+            width: 300px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"], .button-link {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            text-decoration: none;
+            text-align: center;
+            font-size: 16px;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"]:hover, .button-link:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .home-button-container {
+            width: 300px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Moltiplica due numeri</h1>
+    <form method="POST">
+        <input type="text" name="numero1" placeholder="Numero 1"><br><br>
+        <input type="text" name="numero2" placeholder="Numero 2"><br><br>
+        <input type="submit" value="Calcola Moltiplicazione">
+    </form>
+
+    {% if risultato is not none %}
+        <div class="result">
+            <h3>Risultato: {{ risultato }}</h3>
+        </div>
+    {% endif %}
+
+    <div class="home-button-container">
+        <a href="/" class="button-link">Torna alla Home</a>
+    </div>
+</body>
+</html>
+

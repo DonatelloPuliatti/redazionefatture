@@ -1,0 +1,12 @@
+flask
+gunicorn
+docxtpl
+selenium
+pandas
+openpyxl
+numpy
+webdriver-manager
+requests
+beautifulsoup4
+lxml
+bs4
