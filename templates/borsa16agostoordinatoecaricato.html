@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+
+
+    <title>Applicativo per effettuare elaborazioni statistiche sui dati ufficiali di borsaitaliana.it</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 0; }
+        h2   { text-align: center; color: #4CAF50; margin: 20px 0 6px 0; }
+
+        /* Sottotitolo (facoltativo) */
+        .subtitle { text-align: center; color: #555; margin: 0 0 10px 0; font-weight: 600; }
+
+        /* Contenitore largo unico */
+        .container {
+            width: 98%;
+            max-width: 1400px;   /* più ampio del precedente */
+            margin: 10px auto 20px auto;
+        }
+
+        /* Griglia principale: sinistra (box impilati) + destra (Legenda) */
+        .grid-two-col {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+            flex-wrap: wrap; /* per schermi stretti */
+        }
+        .left-col {
+            flex: 2 1 720px;         /* colonna sinistra più ampia */
+            min-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;               /* spazio tra i box della sinistra */
+        }
+        .right-col {
+            flex: 1 1 380px;         /* colonna destra (Legenda) */
+            min-width: 360px;
+        }
+
+        /* Box / Card */
+        .section-card {
+            border: 1px solid #ccc; border-radius: 10px; background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 16px 18px;
+        }
+        .section-card h3 { margin: 0 0 8px 0; color: #4CAF50; }
+        .section-card ul { margin: 8px 0 0 18px; }
+
+        /* Contenitore simmetrico che racchiude le due colonne */
+        .container-card { padding: 20px; }
+
+        /* Fieldset generici */
+        fieldset {
+            border: 1px solid #ccc; border-radius: 8px;
+            padding: 15px; background: #fdfdfd; margin: 0;
+        }
+        legend { font-weight: bold; color: #4CAF50; padding: 0 10px; }
+
+        /* Radio orizzontali */
+        .radio-inline {
+            display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; margin-top: 6px;
+        }
+        .radio-inline label { display: inline-flex; align-items: center; gap: 6px; }
+
+        /* Input numero importo */
+        .form-field { margin: 10px 0 0 0; }
+        label[for] { display: block; margin-bottom: 6px; font-weight: 600; }
+        input[type="number"] {
+            width: 100%; max-width: 360px; padding: 10px; font-size: 1rem;
+            border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;
+            transition: border-color 0.3s ease-in-out;
+        }
+        input[type="number"]:focus { border-color: #4CAF50; outline: none; }
+
+        /* Pulsante finale (sotto il contenitore) */
+        .buttons { text-align: center; margin-top: 14px; }
+        input[type="submit"] {
+            background-color: #4CAF50; color: white; padding: 10px 18px; border: none;
+            border-radius: 6px; cursor: pointer; font-size: 16px;
+        }
+        input[type="submit"]:hover { filter: brightness(0.95); }
+
+        /* Messaggi risultato */
+        .result {
+            margin: 16px auto; max-width: 1100px; background: #e8f5e9; border-left: 4px solid #4CAF50;
+            padding: 12px 16px; border-radius: 8px; font-weight: 600; color: #2e7d32;
+        }
+        .errore { color: #d32f2f; font-weight: 600; }
+
+        /* Tabella risultati */
+        .tabella-risultati {
+            border-collapse: collapse; margin: 20px auto; font-size: 0.95rem;
+            min-width: 95%; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .tabella-risultati thead tr { background: #4CAF50; color: #fff; text-align: center; font-weight: bold; }
+        .tabella-risultati th, .tabella-risultati td { padding: 10px 12px; border-bottom: 1px solid #ddd; text-align: center; }
+        .tabella-risultati tbody tr:nth-child(even) { background: #f9f9f9; }
+        .tabella-risultati tbody tr:hover { background: #e8f5e9; }
+
+        /* Icone sort opzionali */
+        #btpTable.dataTable thead th { position: relative; padding-right: 2rem; }
+        #btpTable.dataTable thead th.sorting:before,
+        #btpTable.dataTable thead th.sorting:after,
+        #btpTable.dataTable thead th.sorting_asc:before,
+        #btpTable.dataTable thead th.sorting_asc:after,
+        #btpTable.dataTable thead th.sorting_desc:before,
+        #btpTable.dataTable thead th.sorting_desc:after { display: none !important; }
+        #btpTable.dataTable thead th.sorting::after { content: "⇅"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); opacity: 0.5; pointer-events: none; }
+        #btpTable.dataTable thead th.sorting_asc::after { content: "▲"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); opacity: 0.95; pointer-events: none; }
+        #btpTable.dataTable thead th.sorting_desc::after { content: "▼"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); opacity: 0.95; pointer-events: none; }
+
+        /* Rimozione spinner numerico per uniformità UI */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .section-card strong {
+            color: #4CAF50;   /* stesso verde dei titoli */
+        }
+
+
+    </style>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.8/sorting/date-eu.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.8/sorting/num-fmt.js"></script>
+</head>
+<body>
+    <h2>Applicativo per effettuare elaborazioni statistiche sui dati ufficiali di borsaitaliana.it</h2>
+
+
+    <!-- Form principale -->
+    <form method="POST" id="form-generale" class="container">
+        <!-- CONTENITORE UNICO (simmetrico) delle DUE COLONNE -->
+        <div class="section-card container-card">
+            <div class="grid-two-col">
+                <!-- COLONNA SINISTRA: 0) Come funziona  1) Tipologia  2) Importo -->
+                <div class="left-col">
+                    <!-- 0) Come funziona -->
+                    <section class="section-card" id="come-funziona">
+                        <h3>Come funziona</h3>
+                        {% if come_funziona %}
+                            {{ come_funziona|safe }}
+                        {% else %}
+                            <p>Per ogni tipologia di titoli selezionata, il software innanzitutto estrae dal sito ufficiale borsaitaliana.it i seguenti dati:  ISIN, nome, tasso della cedola, ultimo prezzo ufficiale e data di scadenza.</p>
+                            <p>In virtù dell'importo ipotetico che si investirebbe nei titoli della tipologia selezionata, il software restituisce una serie di elaborazioni statistiche (v. box 'Legenda'). </p>
+                            <p>Poichè il sistema restituisce TUTTI i titoli della tipologia richiesta, è possibile effettuare dei confronti. Cliccando sull'intestazione di una qualsiasi colonna, il software ordina i titoli in senso crescente o decrescente in base al valore esposto dalla colonna (Ovviamente "ISIN" e "Nome" sono ordinabili in senso alfabetico, mentre "Scadenza" in senso temporale).</p>
+                            <p>E' disponibile anche la funzione "Cerca" per trovare uno specifico titolo partendo dal suo nome o anche da uno dei suoi valori conosciuti (es. scadenza).  </p>
+                            <p>Si precisa infine che il software NON offre consigli di investimento, ma svolge una funzione meramente conoscitiva di supporto dell'operato dei risparmiatori. </p>
+                            <p>N.B. Il sistema impiega circa 30-60 secondi per effettuare le elaborazioni statistiche richieste.</p>
+                        {% endif %}
+                    </section>
+
+                    <!-- 1) Seleziona la tipologia di titoli -->
+                    <fieldset>
+                        <h3>Seleziona la tipologia di titoli di tuo interesse</h3>
+                        <div class="radio-inline">
+                            <label><input type="radio" name="tipologia" value="DomesticMOT" required> DomesticMOT</label>
+                            <label><input type="radio" name="tipologia" value="EuroMOT"> EuroMOT</label>
+                            <label><input type="radio" name="tipologia" value="BOT"> BOT</label>
+                            <label><input type="radio" name="tipologia" value="BTP"> BTP</label>
+                            <label><input type="radio" name="tipologia" value="CTZ"> CTZ</label>
+                            <label><input type="radio" name="tipologia" value="CCT"> CCT</label>
+                        </div>
+                    </fieldset>
+
+                    <!-- 2) Importo investimento -->
+                    <fieldset>
+                        <h3>Importo ipotetico dell'investimento (€) </h3>
+                        <div class="form-field">
+                            <input
+                                type="number"
+                                inputmode="decimal"
+                                id="investimento"
+                                name="investimento"
+                                step="0.01"
+                                min="0"
+                                placeholder="Es. 10000.00"
+                                aria-describedby="hint-investimento"
+                                required
+                            >
+
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- COLONNA DESTRA: Legenda -->
+                <div class="right-col">
+                    <section class="section-card" id="legenda">
+                        <h3>Legenda</h3>
+                        {% if legenda %}
+                            {{ legenda|safe }}
+                        {% else %}
+                            <ul>
+                                <li><strong>ISIN</strong>: codice identificativo del titolo</li>
+                                <li><strong>Nome</strong>: nome del titolo</li>
+                                <li><strong>Cedola (%)</strong>: tasso cedolare semestrale</li>
+                                <li><strong>Scadenza </strong>: data di rimborso del titolo</li>
+                                <li><strong>Prezzo</strong>: ultimo prezzo ufficiale rapportato al valore nominale convenzionalmente fissato a 100</li>
+                                <li><strong>Ced12m (%)</strong>: tasso cedolare annuo.</li>
+                                <li><strong>Rend. (%) </strong>: rendimento attuale su base annua</li>
+                                <li><strong>GG</strong>: numero di giorni alla scadenza</li>
+                                <li><strong>CedNUM</strong>: numero di cedole rimanenti</li>
+                                <li><strong>CedLRD (€)</strong>: importo lordo della cedola semestrale sulla base di quanto investito</li>
+                                <li><strong>CedNTT (€)</strong>: importo netto (tassazione 12,5%) della cedola semestrale sulla base di quanto investito</li>
+                                <li><strong>RicLRD12m(€)</strong>: ricavato annuo lordo sulla base di quanto investito</li>
+                                <li><strong>RicNTT12m(€)</strong>: ricavato annuo netto (cioè decurtato della tassa del 12,5%)</li>
+                                <li><strong>RicTOT (€)</strong>: ricavo totale alla scadenza</li>
+                                <li><strong>GuadTOTLRD (€)</strong>: guadagno totale lordo alla scadenza (ottenuto considerando il solo prezzo d'acquisto)</li>
+                                <li><strong>GuadTOTNTT (€)</strong>: guadagno totale netto alla scadenza (ottenuto considerando il prezzo d'acquisto e le tasse)</li>
+                                <li><strong>GuadLRD12M (€)</strong>: guadagno lordo annuo stimato (ottenuto rapportando il guadagno totale lordo al tempo rimanente)</li>
+                                <li><strong>GuadNTT12M (€)</strong>: guadagno netto annuo stimato (ottenuto rapportando il guadagno totale netto al tempo rimanente)</li>
+                                <li><strong>VUOTO</strong>: il sistema restituisce un campo vuoto quando non è presente alcun dato (ad es. nei giorni in cui la borsa è aperta, prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
+                            </ul>
+                        {% endif %}
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pulsante finale: SOTTO il contenitore -->
+        <div class="buttons">
+            <input type="submit" name="azione" value="Procedi">
+        </div>
+    </form>
+
+    {% if risultato %}
+    <div class="result">{{ risultato|safe }}</div>
+    {% endif %}
+
+    {% if tabella %}
+        <div style="margin:20px; overflow:auto;">
+            {{ tabella|safe }}
+        </div>
+
+        <script>
+        $(function () {
+            var $table = $('#btpTable');
+            if (!$table.length) return;
+
+    // --- Plugin di ordinamento: numeri con vuoti SEMPRE in fondo ---
+            function toNum(d) {
+                if (d === null || d === undefined) return null;
+                let s = d.toString().trim();
+
+        // tratta stringhe vuote / "NaN" / "-" come vuote
+                if (s === '' || s.toUpperCase() === 'NAN' || s === '-') return null;
+
+        // rimuove spazi e simboli non numerici comuni, ma NON tocca il punto decimale
+                s = s.replace(/\s+/g, '').replace('€', '');
+
+        // converte eventuale virgola decimale in punto
+                s = s.replace(',', '.');
+
+                const v = parseFloat(s);
+                return Number.isNaN(v) ? null : v;
+            }
+
+    // Definisce il tipo 'num-empty-last' con asc/desc dedicati
+            $.extend($.fn.dataTableExt.oSort, {
+                'num-empty-last-asc': function (a, b) {
+                    const x = toNum(a), y = toNum(b);
+                    if (x === null && y === null) return 0;
+                    if (x === null) return 1;   // vuoto dopo
+                    if (y === null) return -1;  // valore prima
+                    return x < y ? -1 : (x > y ? 1 : 0);
+                },
+                'num-empty-last-desc': function (a, b) {
+                    const x = toNum(a), y = toNum(b);
+                    if (x === null && y === null) return 0;
+                    if (x === null) return 1;   // vuoto dopo
+                    if (y === null) return -1;  // valore prima
+                    return x < y ? 1 : (x > y ? -1 : 0);
+                }
+            });
+
+    // --- Mappa colonne ---
+            const headers = $table.find('thead th').map(function () {
+                return $(this).text().trim();
+            }).get();
+
+            const colISIN     = headers.indexOf('ISIN');
+            const colNome     = headers.indexOf('Nome');
+            const colScadenza = headers.indexOf('Scadenza');
+
+            const numericTargets = headers
+                .map((_, i) => i)
+                .filter(i => i !== colISIN && i !== colNome && i !== colScadenza);
+
+    // --- Inizializza DataTables ---
+            $table.DataTable({
+                order: [],            // nessun ordinamento iniziale
+                pageLength: 25,
+                columnDefs: [
+                    ...(colISIN     >= 0 ? [{ targets: colISIN,     type: 'string'  }] : []),
+                    ...(colNome     >= 0 ? [{ targets: colNome,     type: 'string'  }] : []),
+                    ...(colScadenza >= 0 ? [{ targets: colScadenza, type: 'date-eu' }] : []),
+                    { targets: numericTargets, type: 'num-empty-last' } // <-- usa il plugin sopra
+                ],
+                language: { url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/it-IT.json" }
+            });
+        });
+
+        </script>
+
+
+    {% endif %}
+
+</body>
+</html>

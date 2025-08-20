@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Carica e Scarica File</title>
+</head>
+<body>
+
+<h2>Carica un file</h2>
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <button type="submit">Carica</button>
+</form>
+
+<h2>Scarica un file</h2>
+<a href="/download/esempio.csv" download>Scarica il file di esempio</a>
+
+</body>
+</html>
