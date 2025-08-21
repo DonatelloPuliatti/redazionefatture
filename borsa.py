@@ -209,7 +209,12 @@ def borsa():
                 return nome
             info = None
             if nome.lower().startswith("btp-"):
-                info = "BTP ordinario"
+                info = (
+                    "Indicizzato all'inflazione: NO&#10;"
+                    "Premio finale: NO&#10;"
+                    "Negoziabile sul mercato secondario: SI&#10;"
+                    "Metodo secco: NO"
+                )
             elif nome.lower().startswith("btp coupon"):
                 info = "BTP coupon"
             if info:
