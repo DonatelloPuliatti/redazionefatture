@@ -208,143 +208,16 @@ def borsa():
             if not isinstance(nome, str):
                 return nome
             info = None
-
-            if nome.lower().startswith("btp coupon"):
+            if nome.lower().startswith("Btp Coupon"):
                 info = (
                     "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
+                    "Premio finale: NO&#10;"
                     "Periodicità cedola: NO&#10;"
                     "Cedola fissa/variabile: NO&#10;"
-                    "Note particolari: il titolo non prevede l'erogazione di cedole periodiche ed è caratterizzato dal coupon stripping"
+                    "Note particolari: meccanismo del coupon stripping &#10"
                 )
-
-            if nome.lower().startswith("btp futura"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: SI, finale e intermedio, ma solo per coloro che hanno acquistato il titolo all'emissione&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: variabile&#10;"
-                    "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola riportata è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
-                )
-
-            if nome.lower().startswith("btp fx"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: fissa&#10;"
-                    "Note particolari: la cedola è erogata in valuta estera"
-                )
-
-            if nome.lower().startswith("btp green fx"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: fissa&#10;"
-                    "Note particolari: il titolo è destinato a finanziare progetti ambientali"
-                )
-
-            if nome.lower().startswith("btp italia"):
-                info = (
-                    "Indicizzato all'inflazione: SI&#10;"
-                    "Premio finale/intermedio: SI, solo finale, esclusivamente per coloro che hanno acquistato il titolo all'emissione&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: variabile perchè dipendente dall'inflazione&#10;"
-                    "Note particolari: il titolo è indicizzato al FOI senza tabacchi e l'indicizzazione riguarda il capitale cui applicare la cedola"
-                )
-
-            if nome.lower().startswith("btp più"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 3 mesi&#10;"
-                    "Cedola fissa/variabile: variabilee&#10;"
-                    "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola è quella attualela cedola riportata è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
-                )
-
-
-            if nome.lower().startswith("btp tf"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: fissa&#10;"
-                    "Note particolari: si tratta dei titoli aventi una struttura tradizionale semplice, con cedole periodiche fisse, nessuna indicizzazione e nessun meccanismo premiale"
-                )
-
-            if nome.lower().startswith("btp più"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 3 mesi&#10;"
-                    "Cedola fissa/variabile: variabilee&#10;"
-                    "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola è quella attualela cedola riportata è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
-                )
-
-            if nome.lower().startswith("btp valore"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: SI, solo finale, esclusivamente per coloro che hanno acquistato il titolo all'emissione&#10;"
-                    "Periodicità cedola: 3 mesi&#10;"
-                    "Cedola fissa/variabile: variabilee&#10;"
-                    "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
-                )
-
-            if nome.lower().startswith("btp-"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: fissa&#10;"
-                    "Note particolari: si tratta dei titoli aventi una struttura tradizionale semplice, con cedole periodiche fisse, nessuna indicizzazione e nessun meccanismo premiale"
-                )
-
-            if nome.lower().startswith("btpgreen"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: fissa&#10;"
-                    "Note particolari: il titolo è destinato a finanziare progetti ambientali"
-                )
-
-            if nome.lower().startswith("btpi fx"):
-                info = (
-                    "Indicizzato all'inflazione: SI&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: variabile&#10;"
-                    "Note particolari: il titolo è indicizzato all'inflazione area euro, ex tabacchi; il titolo è negoziato in valuta estera"
-                )
-
-            if nome.lower().startswith("btpi tf"):
-                info = (
-                    "Indicizzato all'inflazione: SI&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: variabile&#10;"
-                    "Note particolari: il titolo è indicizzato all'inflazione area euro, ex tabacchi"
-                )
-
-            if nome.lower().startswith("btpi-"):
-                info = (
-                    "Indicizzato all'inflazione: SI&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: 6 mesi&#10;"
-                    "Cedola fissa/variabile: variabile&#10;"
-                    "Note particolari: il titolo è indicizzato all'inflazione area euro, ex tabacchi"
-                )
-
-            if nome.lower().startswith("btpstripital"):
-                info = (
-                    "Indicizzato all'inflazione: NO&#10;"
-                    "Premio finale/intermedio: NO&#10;"
-                    "Periodicità cedola: NO&#10;"
-                    "Cedola fissa/variabile: NO&#10;"
-                    "Note particolari: il titolo non prevede l'erogazione di cedole periodiche ed è caratterizzato dal coupon stripping"
-                )
-
+            elif nome.lower().startswith("btp coupon"):
+                info = "BTP coupon"
             if info:
                 return (
                     f'{nome} '
