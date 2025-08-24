@@ -180,7 +180,19 @@ def borsa():
 
         
         df["ValNOM (€)"] = investimento * 100 / df["Prezzo"]
-        df["CedLRD (€)"] = df["ValNOM (€)"] / 100 * df["Cedola (%)"]
+
+        conditions = [
+            df["ISIN"] == 2,  # condizione 1
+            df["ISIN"] == 3  # condizione 2
+        ]
+        values = [
+            25,  # se ISIN = 2
+            35  # se ISIN = 3
+        ]
+
+        df["Ind."] = np.select(conditions, values, default=1)
+
+        df["CedLRD (€)"] = df["ValNOM (€)"] / 100 * df["Cedola (%)"] * df["Ind."]
         df["CedNTT (€)"] = df["CedLRD (€)"] * 0.875
 
         nome_norm = df["Nome"].fillna("").str.strip().str.lower()
@@ -206,8 +218,8 @@ def borsa():
         df["RendLRD (%)"] = df["GuadTOTLRD (€)"] / df["EsbINIZ"] * 100
         df["RendNTT (%)"] = df["GuadTOTNTT (€)"] / df["EsbINIZ"] * 100
         df["Inflazione"] = ((1 + (inflazione/100.0)) ** anni_diff)
-        df["Valorefuturo"] = df["EsbINIZ"] * ((1 + (inflazione/100.0)) ** anni_diff)
-        df["RendLRDdefl (%)"] = (df["RicTOT (€)"] / df["Valorefuturo"] - 1) * 100
+        df["ValoreATT"] = df["EsbINIZ"] * ((1 + (inflazione/100.0)) ** anni_diff)
+        df["RendLRDdefl (%)"] = (df["RicTOT (€)"] / df["ValoreATT"] - 1) * 100
         df["RendNTTdefl (%)"] = np.where(
             df["RendLRDdefl (%)"] < 0,  # condizione: se il rendimento è negativo
             0,  # allora metti 0
@@ -413,6 +425,7 @@ def borsa():
 
         # Tabella HTML (id per DataTables) eliminando le colonne che non vanno visualizzate
         df_vis = df.drop(columns=["MesiPerIntervallo"], errors="ignore")
+        df_vis = df.drop(columns=["Inflazione"], errors="ignore")
         tabella_html = df_vis.to_html(
             classes="tabella-risultati display nowrap",
             table_id="btpTable",
