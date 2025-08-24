@@ -94,7 +94,7 @@ def borsa():
     tipologia = request.form.get("tipologia")
     investimento = request.form.get("investimento")
     investimento = float(investimento.replace(",", "."))
-    inflazione = request.form.get("inflazione")
+    inflazione = request.form.get("investimento")
     inflazione = float(inflazione.replace(",", "."))
 
     driver = None
@@ -140,13 +140,6 @@ def borsa():
                      + (df["Scadenza"].dt.month - oggi.month)
                      - (df["Scadenza"].dt.day < oggi.day).astype("int64"))
 
-        delta_giorni = (df["Scadenza"] - oggi).dt.days
-        anni_diff = delta_giorni / 365.25
-
-
-
-
-
         # --- qui definiamo i mesi per intervallo ---
         nome_norm = df["Nome"].fillna("").str.strip().str.lower()
         cond_coupon = nome_norm.str.startswith("btp coupon") | nome_norm.str.startswith("btpstripital")
@@ -162,11 +155,8 @@ def borsa():
             lambda r: r["Scadenza"] - pd.DateOffset(months=r["CedNUM"] * r["MesiPerIntervallo"]),
             axis=1
         )
-        df["CedNUM"] = df["CedNUM"] + 1
 
         df["GG"] = (ultimo_intervallo - oggi).dt.days
-
-
 
         df["Scadenza"] = df["Scadenza"].dt.strftime("%d-%m-%y")
 
@@ -180,39 +170,20 @@ def borsa():
 
         
         df["ValNOM (€)"] = investimento * 100 / df["Prezzo"]
+
         df["CedLRD (€)"] = df["ValNOM (€)"] / 100 * df["Cedola (%)"]
         df["CedNTT (€)"] = df["CedLRD (€)"] * 0.875
 
-        nome_norm = df["Nome"].fillna("").str.strip().str.lower()
-        cond_speciali = nome_norm.str.startswith("btp piu") | nome_norm.str.startswith("btp valore")
-
-        # 2) 'a' per riga: 190 se speciale, altrimenti 180 (usiamo una Series per l'allineamento riga-a-riga)
-        a = pd.Series(np.where(cond_speciali, 93, 184), index=df.index)
-
-        # 3) gg_mod = GG % a (con .mod per gestire correttamente tipi nullable e NA)
-        gg_mod = df["GG"].mod(a)
-
-        # 4) frazione di periodo maturata: (GG % a) / a
-        frazione = gg_mod / a
-
-        # 5) formula: Rateo = CedLRD - (frazione * CedLRD)
-        df["RateoLRD (€)"] = df["CedLRD (€)"] - (frazione * df["CedLRD (€)"])
+        df["RateoLRD (€)"] =  df["CedLRD (€)"]  -  (((df["GG"] % 182.5)/182.5) * df["CedLRD (€)"])
         df["RateoNTT (€)"] = df["RateoLRD (€)"] * 0.875
         df["EsbINIZ"] = investimento + df["RateoNTT (€)"]
-
+        df["RicLRD12m (€)"] = df["CedLRD (€)"] * 2
+        df["RicNTT12M (€)"] = df["CedLRD (€)"] * 2 * 0.875
         df["RicTOT (€)"] = (df["CedLRD (€)"] * df["CedNUM"]) + df["ValNOM (€)"]
         df["GuadTOTLRD (€)"] = df["RicTOT (€)"] - df["EsbINIZ"]
         df["GuadTOTNTT (€)"] = df["GuadTOTLRD (€)"] * 0.875
-        df["RendLRD (%)"] = df["GuadTOTLRD (€)"] / df["EsbINIZ"] * 100
-        df["RendNTT (%)"] = df["GuadTOTNTT (€)"] / df["EsbINIZ"] * 100
-        df["Inflazione"] = ((1 + (inflazione/100.0)) ** anni_diff)
-        df["Valorefuturo"] = df["EsbINIZ"] * ((1 + (inflazione/100.0)) ** anni_diff)
-        df["RendLRDdefl (%)"] = (df["RicTOT (€)"] / df["Valorefuturo"] - 1) * 100
-        df["RendNTTdefl (%)"] = np.where(
-            df["RendLRDdefl (%)"] < 0,  # condizione: se il rendimento è negativo
-            0,  # allora metti 0
-            df["RendLRDdefl (%)"] * 0.875  # altrimenti calcola normalmente
-        )
+        df["GuadLRD12m (€)"] = df["GuadTOTLRD (€)"] / df["GG"] * 365
+        df["GuadNTT12m (€)"] = df["GuadLRD12m (€)"] * 0.875
 
         # Elimina "Altro" se presente
         if "Altro" in df.columns:
