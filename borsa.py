@@ -150,7 +150,7 @@ def borsa():
         # --- qui definiamo i mesi per intervallo ---
         nome_norm = df["Nome"].fillna("").str.strip().str.lower()
         cond_coupon = nome_norm.str.startswith("btp coupon") | nome_norm.str.startswith("btpstripital")
-        cond_speciali = nome_norm.str.startswith("btp piu") | nome_norm.str.startswith("btp valore")
+        cond_speciali = nome_norm.str.startswith("btp piu") | nome_norm.str.startswith("btp valore sc")
         df["MesiPerIntervallo"] = np.where(cond_speciali, 3, 6).astype("int64")
         # ------------------------------------
 
@@ -182,12 +182,57 @@ def borsa():
         df["ValNOM (€)"] = investimento * 100 / df["Prezzo"]
 
         conditions = [
-            df["ISIN"] == 2,  # condizione 1
-            df["ISIN"] == 3  # condizione 2
+            df["ISIN"] == "IT0005497000",
+            df["ISIN"] == "IT0005648255",
+            df["ISIN"] == "IT0005332835",
+
+            df["ISIN"] == "IT0005532723",
+            df["ISIN"] == "IT0005517195",
+            df["ISIN"] == "IT0005388175",
+
+            df["ISIN"] == "IT0005657348",
+            df["ISIN"] == "IT0005588881",
+            df["ISIN"] == "IT0005647273",
+
+            df["ISIN"] == "IT0005482994",
+            df["ISIN"] == "IT0005436701",
+            df["ISIN"] == "IT0005387052",
+            df["ISIN"] == "IT0005415416",
+            df["ISIN"] == "IT0005138828",
+            df["ISIN"] == "IT0005246134",
+            df["ISIN"] == "IT0005543803",
+            df["ISIN"] == "IT0005547812",
+            df["ISIN"] == "IT0004735152",
+            df["ISIN"] == "IT0003745541",
+            df["ISIN"] == "IT0004545890",
         ]
+
         values = [
-            25,  # se ISIN = 2
-            35  # se ISIN = 3
+            1.088,
+            1.004,
+            1.194,
+            1.145,
+            1.213,
+            1.223,
+
+            1.002,
+            1.028,
+            1.005,
+
+            1.145,
+            1.213,
+            1.223,
+
+
+
+            1.224,
+            1.281,
+            1.264,
+            1.049,
+            1.048,
+            1.375,
+            1.392,
+            1.391
         ]
 
         df["Ind."] = np.select(conditions, values, default=1)
@@ -212,7 +257,50 @@ def borsa():
         df["RateoNTT (€)"] = df["RateoLRD (€)"] * 0.875
         df["EsbINIZ"] = investimento + df["RateoNTT (€)"]
 
-        df["RicTOT (€)"] = (df["CedLRD (€)"] * df["CedNUM"]) + df["ValNOM (€)"]
+
+
+        SEMESTRE_GIORNI = 182.0
+        ANNO_GIORNI = 365.25
+        i = inflazione / 100.0
+        r = df["Cedola (%)"] * df["Ind."]/ 100.0
+        fattore_prima = np.power(1.0 + i, df["GG"] / ANNO_GIORNI)
+        q = np.power(1.0 + i, SEMESTRE_GIORNI / ANNO_GIORNI)
+        geom_sum = np.where(
+            np.isclose(q, 1.0),
+            df["CedNUM"],
+            (np.power(q, df["CedNUM"]) - 1.0) / (q - 1.0)
+        )
+        df["TotCedole (€)"] = r * df["ValNOM (€)"] * fattore_prima * geom_sum
+        df["Capitalerimborsatospeciale"] = df["ValNOM (€)"] * df["Ind."] * ((1 + (inflazione/100.0)) ** anni_diff)
+        df["Capitalerimborsatogenerale"] = df["ValNOM (€)"]
+
+        cond_speciale = df["ISIN"].isin([
+            "IT0005497000", "IT0005648255", "IT0005332835",
+            "IT0005532723", "IT0005517195", "IT0005388175",
+            "IT0005657348", "IT0005588881", "IT0005647273",
+            "IT0005482994", "IT0005436701", "IT0005387052",
+            "IT0005415416", "IT0005138828", "IT0005246134",
+            "IT0005543803", "IT0005547812", "IT0004735152",
+            "IT0003745541", "IT0004545890"
+        ])
+
+        # Condizione "generale" (negazione della prima)
+        cond_generale = ~cond_speciale
+
+        # Uso di np.select
+        df["RicTOT (€)"] = np.select(
+            [cond_speciale, cond_generale],
+            [
+                df["TotCedole (€)"] + df["Capitalerimborsatospeciale"],  # per ISIN speciali
+                (df["CedLRD (€)"] * df["CedNUM"]) + df["Capitalerimborsatogenerale"]  # per tutti gli altri
+            ],
+            default=0
+        )
+
+
+
+
+
         df["GuadTOTLRD (€)"] = df["RicTOT (€)"] - df["EsbINIZ"]
         df["GuadTOTNTT (€)"] = df["GuadTOTLRD (€)"] * 0.875
         df["RendLRD (%)"] = df["GuadTOTLRD (€)"] / df["EsbINIZ"] * 100
@@ -225,6 +313,8 @@ def borsa():
             0,  # allora metti 0
             df["RendLRDdefl (%)"] * 0.875  # altrimenti calcola normalmente
         )
+        df["RendLRDdeflANN (%)"] = df["RendLRDdefl (%)"] / anni_diff
+        df["RendNTTdeflANN (%)"] = df["RendNTTdefl (%)"] / anni_diff
 
         # Elimina "Altro" se presente
         if "Altro" in df.columns:
@@ -351,6 +441,15 @@ def borsa():
                 info = (
                     "Indicizzato all'inflazione: NO&#10;"
                     "Premio finale/intermedio: SI, solo finale, esclusivamente per coloro che hanno acquistato il titolo all'emissione&#10;"
+                    "Periodicità cedola: 6 mesi&#10;"
+                    "Cedola fissa/variabile: variabilee&#10;"
+                    "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
+                )
+
+            if nome.lower().startswith("btp valore sc"):
+                info = (
+                    "Indicizzato all'inflazione: NO&#10;"
+                    "Premio finale/intermedio: SI, solo finale, esclusivamente per coloro che hanno acquistato il titolo all'emissione&#10;"
                     "Periodicità cedola: 3 mesi&#10;"
                     "Cedola fissa/variabile: variabilee&#10;"
                     "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
@@ -424,8 +523,7 @@ def borsa():
         df["Nome"] = df["Nome"].apply(aggiungi_info)
 
         # Tabella HTML (id per DataTables) eliminando le colonne che non vanno visualizzate
-        df_vis = df.drop(columns=["MesiPerIntervallo"], errors="ignore")
-        df_vis = df.drop(columns=["Inflazione"], errors="ignore")
+        df_vis = df.drop(columns=["MesiPerIntervallo", "Inflazione", "Capitalerimborsato", "TotCedole (€)"], errors="ignore")
         tabella_html = df_vis.to_html(
             classes="tabella-risultati display nowrap",
             table_id="btpTable",

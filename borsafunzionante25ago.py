@@ -94,7 +94,7 @@ def borsa():
     tipologia = request.form.get("tipologia")
     investimento = request.form.get("investimento")
     investimento = float(investimento.replace(",", "."))
-    inflazione = request.form.get("investimento")
+    inflazione = request.form.get("inflazione")
     inflazione = float(inflazione.replace(",", "."))
 
     driver = None
@@ -140,10 +140,17 @@ def borsa():
                      + (df["Scadenza"].dt.month - oggi.month)
                      - (df["Scadenza"].dt.day < oggi.day).astype("int64"))
 
+        delta_giorni = (df["Scadenza"] - oggi).dt.days
+        anni_diff = delta_giorni / 365.25
+
+
+
+
+
         # --- qui definiamo i mesi per intervallo ---
         nome_norm = df["Nome"].fillna("").str.strip().str.lower()
         cond_coupon = nome_norm.str.startswith("btp coupon") | nome_norm.str.startswith("btpstripital")
-        cond_speciali = nome_norm.str.startswith("btp piu") | nome_norm.str.startswith("btp valore")
+        cond_speciali = nome_norm.str.startswith("btp piu") | nome_norm.str.startswith("btp valore sc")
         df["MesiPerIntervallo"] = np.where(cond_speciali, 3, 6).astype("int64")
         # ------------------------------------
 
@@ -155,8 +162,11 @@ def borsa():
             lambda r: r["Scadenza"] - pd.DateOffset(months=r["CedNUM"] * r["MesiPerIntervallo"]),
             axis=1
         )
+        df["CedNUM"] = df["CedNUM"] + 1
 
         df["GG"] = (ultimo_intervallo - oggi).dt.days
+
+
 
         df["Scadenza"] = df["Scadenza"].dt.strftime("%d-%m-%y")
 
@@ -171,19 +181,100 @@ def borsa():
         
         df["ValNOM (€)"] = investimento * 100 / df["Prezzo"]
 
-        df["CedLRD (€)"] = df["ValNOM (€)"] / 100 * df["Cedola (%)"]
+        conditions = [
+            df["ISIN"] == "IT0005497000",
+            df["ISIN"] == "IT0005648255",
+            df["ISIN"] == "IT0005332835",
+
+            df["ISIN"] == "IT0005532723",
+            df["ISIN"] == "IT0005517195",
+            df["ISIN"] == "IT0005388175",
+
+            df["ISIN"] == "IT0005657348",
+            df["ISIN"] == "IT0005588881",
+            df["ISIN"] == "IT0005647273",
+
+            df["ISIN"] == "IT0005482994",
+            df["ISIN"] == "IT0005436701",
+            df["ISIN"] == "IT0005387052",
+            df["ISIN"] == "IT0005415416",
+            df["ISIN"] == "IT0005138828",
+            df["ISIN"] == "IT0005246134",
+            df["ISIN"] == "IT0005543803",
+            df["ISIN"] == "IT0005547812",
+            df["ISIN"] == "IT0004735152",
+            df["ISIN"] == "IT0003745541",
+            df["ISIN"] == "IT0004545890",
+        ]
+
+        values = [
+            1.088,
+            1.004,
+            1.194,
+            1.145,
+            1.213,
+            1.223,
+
+            1.002,
+            1.028,
+            1.005,
+
+            1.145,
+            1.213,
+            1.223,
+
+
+
+            1.224,
+            1.281,
+            1.264,
+            1.049,
+            1.048,
+            1.375,
+            1.392,
+            1.391
+        ]
+
+        df["Ind."] = np.select(conditions, values, default=1)
+
+        df["CedLRD (€)"] = df["ValNOM (€)"] / 100 * df["Cedola (%)"] * df["Ind."]
         df["CedNTT (€)"] = df["CedLRD (€)"] * 0.875
 
-        df["RateoLRD (€)"] =  df["CedLRD (€)"]  -  (((df["GG"] % 182.5)/182.5) * df["CedLRD (€)"])
+        nome_norm = df["Nome"].fillna("").str.strip().str.lower()
+        cond_speciali = nome_norm.str.startswith("btp piu") | nome_norm.str.startswith("btp valore")
+
+        # 2) 'a' per riga: 190 se speciale, altrimenti 180 (usiamo una Series per l'allineamento riga-a-riga)
+        a = pd.Series(np.where(cond_speciali, 93, 184), index=df.index)
+
+        # 3) gg_mod = GG % a (con .mod per gestire correttamente tipi nullable e NA)
+        gg_mod = df["GG"].mod(a)
+
+        # 4) frazione di periodo maturata: (GG % a) / a
+        frazione = gg_mod / a
+
+        # 5) formula: Rateo = CedLRD - (frazione * CedLRD)
+        df["RateoLRD (€)"] = df["CedLRD (€)"] - (frazione * df["CedLRD (€)"])
         df["RateoNTT (€)"] = df["RateoLRD (€)"] * 0.875
         df["EsbINIZ"] = investimento + df["RateoNTT (€)"]
-        df["RicLRD12m (€)"] = df["CedLRD (€)"] * 2
-        df["RicNTT12M (€)"] = df["CedLRD (€)"] * 2 * 0.875
-        df["RicTOT (€)"] = (df["CedLRD (€)"] * df["CedNUM"]) + df["ValNOM (€)"]
+
+
+        df["Capitalerimborsato"] = df["ValNOM (€)"] * df["Ind."] * ((1 + (inflazione/100.0)) ** anni_diff)
+        df["RicTOT (€)"] = (df["CedLRD (€)"] * df["CedNUM"]) + df["Capitalerimborsato"]
+
         df["GuadTOTLRD (€)"] = df["RicTOT (€)"] - df["EsbINIZ"]
         df["GuadTOTNTT (€)"] = df["GuadTOTLRD (€)"] * 0.875
-        df["GuadLRD12m (€)"] = df["GuadTOTLRD (€)"] / df["GG"] * 365
-        df["GuadNTT12m (€)"] = df["GuadLRD12m (€)"] * 0.875
+        df["RendLRD (%)"] = df["GuadTOTLRD (€)"] / df["EsbINIZ"] * 100
+        df["RendNTT (%)"] = df["GuadTOTNTT (€)"] / df["EsbINIZ"] * 100
+        df["Inflazione"] = ((1 + (inflazione/100.0)) ** anni_diff)
+        df["ValoreATT"] = df["EsbINIZ"] * ((1 + (inflazione/100.0)) ** anni_diff)
+        df["RendLRDdefl (%)"] = (df["RicTOT (€)"] / df["ValoreATT"] - 1) * 100
+        df["RendNTTdefl (%)"] = np.where(
+            df["RendLRDdefl (%)"] < 0,  # condizione: se il rendimento è negativo
+            0,  # allora metti 0
+            df["RendLRDdefl (%)"] * 0.875  # altrimenti calcola normalmente
+        )
+        df["RendLRDdeflANN (%)"] = df["RendLRDdefl (%)"] / anni_diff
+        df["RendNTTdeflANN (%)"] = df["RendNTTdefl (%)"] / anni_diff
 
         # Elimina "Altro" se presente
         if "Altro" in df.columns:
@@ -310,6 +401,15 @@ def borsa():
                 info = (
                     "Indicizzato all'inflazione: NO&#10;"
                     "Premio finale/intermedio: SI, solo finale, esclusivamente per coloro che hanno acquistato il titolo all'emissione&#10;"
+                    "Periodicità cedola: 6 mesi&#10;"
+                    "Cedola fissa/variabile: variabilee&#10;"
+                    "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
+                )
+
+            if nome.lower().startswith("btp valore sc"):
+                info = (
+                    "Indicizzato all'inflazione: NO&#10;"
+                    "Premio finale/intermedio: SI, solo finale, esclusivamente per coloro che hanno acquistato il titolo all'emissione&#10;"
                     "Periodicità cedola: 3 mesi&#10;"
                     "Cedola fissa/variabile: variabilee&#10;"
                     "Note particolari: caratterizzato dallo step-up, con cedole che aumentano periodicamente; la cedola è quella attuale, ma il calcolo del rimborso finale tiene conto della diversità delle cedole per ogni specifico ISIN"
@@ -383,7 +483,7 @@ def borsa():
         df["Nome"] = df["Nome"].apply(aggiungi_info)
 
         # Tabella HTML (id per DataTables) eliminando le colonne che non vanno visualizzate
-        df_vis = df.drop(columns=["MesiPerIntervallo"], errors="ignore")
+        df_vis = df.drop(columns=["MesiPerIntervallo", "Inflazione", "Capitalerimborsato"], errors="ignore")
         tabella_html = df_vis.to_html(
             classes="tabella-risultati display nowrap",
             table_id="btpTable",
