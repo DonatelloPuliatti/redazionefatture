@@ -513,3 +513,4 @@ def borsa():
                 driver.quit()
         except Exception:
             pass
+

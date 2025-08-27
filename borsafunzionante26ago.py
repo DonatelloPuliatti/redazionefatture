@@ -130,7 +130,7 @@ def borsa():
             .str.replace(".", "", regex=False)
             .str.replace(",", ".", regex=False)
         )
-        df["Cedola (%)"] = pd.to_numeric(df["Cedola (%)"], errors="coerce").fillna(0.0)
+        df["Cedola (%)"] = pd.to_numeric(df["Cedola (%)"], errors="coerce")
         pd.set_option("display.float_format", lambda x: f"{x:.5f}")
 
         df["Scadenza"] = pd.to_datetime(df["Scadenza"], dayfirst=True, errors="coerce").dt.normalize()
@@ -290,42 +290,21 @@ def borsa():
         cond1 = df["ISIN"].isin(["IT0005583486"])
         cond2 = df["ISIN"].isin(["IT0005594483"])
         cond3 = df["ISIN"].isin(["IT0005565400"])
-        cond4 = df["ISIN"].isin(["IT0005442097"])
-        cond5 = df["ISIN"].isin(["IT0005415291"])
-        cond6 = df["ISIN"].isin(["IT0005425761"])
-        cond7 = df["ISIN"].isin(["IT0005466351"])
+        cond4 = df["ISIN"].isin(["IT0005547408"])
+        cond5 = df["ISIN"].isin(["IT0005442097"])
+        cond6 = df["ISIN"].isin(["IT0005415291"])
+        cond7 = df["ISIN"].isin(["IT0005425761"])
+        cond8 = df["ISIN"].isin(["IT0005466351"])
 
-
-
-
-
-
-        valoregenerale = (df["CedLRD (€)"] * df["CedNUM"]) + df["Capitalerimborsatogenerale"]
+        cond_generale = not (cond_speciale)
         # Uso di np.select
         df["RicTOT (€)"] = np.select(
-            [cond_speciale, cond1, cond2, cond3, cond4, cond5, cond6, cond7],
+            [cond_speciale, cond_generale],
             [
                 df["TotCedole (€)"] + df["Capitalerimborsatospeciale"],  # per ISIN speciali
-                (4/4 * df["CedNUM"] * df["ValNOM (€)"] /100 ) - (0.75/4 * (df["CedNUM"] - 12).clip(lower=0)) * df["ValNOM (€)"]/100 + df["Capitalerimborsatogenerale"],
-                (3.9/4 * df["CedNUM"] * df["ValNOM (€)"] / 100) - (0.55/4 * (df["CedNUM"] - 12).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100 + df["Capitalerimborsatogenerale"],
-                (4.5/ 4 * df["CedNUM"] * df["ValNOM (€)"] / 100) - (0.40/ 4 * (df["CedNUM"] - 8).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100 + df["Capitalerimborsatogenerale"],
-
-                (2 / 2 * df["CedNUM"] * df["ValNOM (€)"] / 100) - (0.35 / 2 * (df["CedNUM"] - 8).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100      -  (0.45 / 2 * (df["CedNUM"] - 16).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100                       + df["Capitalerimborsatogenerale"], # 4
-
-                (1.45/ 2 * df["CedNUM"] * df["ValNOM (€)"] / 100) - (0.15 / 2 * (df["CedNUM"] - 6).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100 + df["Capitalerimborsatogenerale"],
-                (1 / 2 * df["CedNUM"] * df["ValNOM (€)"] / 100) - (0.4/ 2 * (df["CedNUM"] - 4).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100 + df["Capitalerimborsatogenerale"],
-
-                (1.7 / 2 * df["CedNUM"] * df["ValNOM (€)"] / 100) - (0.45 / 2 * (df["CedNUM"] - 8).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100 - (0.5 / 2 * (df["CedNUM"] - 16).clip(lower=0)) * df[
-                    "ValNOM (€)"] / 100 + df["Capitalerimborsatogenerale"] # 7
+                (df["CedLRD (€)"] * df["CedNUM"]) + df["Capitalerimborsatogenerale"]  # per tutti gli altri
             ],
-            default= valoregenerale
+            default=0
         )
 
 

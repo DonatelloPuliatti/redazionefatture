@@ -185,8 +185,9 @@
                         {% if come_funziona %}
                             {{ come_funziona|safe }}
                         {% else %}
+                            <p>Il software ha lo scopo di fornire all'utente una serie di informazioni sull'andamento dei titoli: ha quindi una funzione prettamente divulgativa.</p>
                             <p>Per ogni tipologia di titoli selezionata, il software innanzitutto estrae dal sito ufficiale borsaitaliana.it i seguenti dati:  ISIN, nome, tasso della cedola, ultimo prezzo ufficiale e data di scadenza.</p>
-                            <p>In virtù dell'importo ipotetico che si investirebbe nei titoli della tipologia selezionata e dell'inflazione annua stimata, il software restituisce una serie di elaborazioni statistiche (v. box 'Legenda'). </p>
+                            <p>In virtù dell'importo ipotetico che si investirebbe nei titoli della tipologia selezionata e dell'inflazione annua stimata, il software restituisce una serie di elaborazioni statistiche di non elevato livello tecnico, così da consentire di comprendere l'effetto pratico della eventuale negoziazione anche al risparmiatore non dotato di conoscenze specialistiche. (v. box 'Legenda'). </p>
                             <p>L'applicativo non tiene conto dei costi di commissione, né degli eventuali costi amministrativi di deposito titoli: entrambe le tipologie di costo sono infatti molto variabili e seguono diverse metodologie di calcolo. </p>
                             <p>Poichè il sistema restituisce TUTTI i titoli della tipologia richiesta, è possibile effettuare dei confronti. Cliccando sull'intestazione di una qualsiasi colonna, il software ordina i titoli in senso crescente o decrescente in base al valore esposto dalla colonna (Ovviamente "ISIN" e "Nome" sono ordinabili in senso alfabetico, mentre "Scadenza" in senso temporale).</p>
                             <p>Sono in particolare disponibili le seguenti funzioni:</p>
@@ -265,25 +266,25 @@
                                 <li><strong>Cedola (%)</strong>: tasso cedolare semestrale</li>
                                 <li><strong>Scadenza </strong>: data di rimborso del titolo</li>
                                 <li><strong>CedNUM</strong>: numero di cedole rimanenti</li>
-                                <li><strong>GG</strong>: numero di giorni che separano la data odierna da quella di pagamento della prossima cedola o, se non vi sono più cedole, dalla data di scadenza del titolo</li>
-                                <li><strong>ValNOM (€)</strong>: valore nominale acquistato</li>
-                                <li><strong>Ind. </strong>: coefficiente di indicizzazione all'1 settembre 2025 (se il titolo non è indicizzato, il valore è 1)</li>
-                                <li><strong>CedLRD (€)</strong>: importo lordo della cedola semestrale attuale sulla base di quanto investito e dell'eventuale indicizzazione all'1 settembre 2025</li>
+                                <li><strong>GG</strong>: numero di giorni che separano la data odierna da quella di pagamento della prossima cedola, tenendo presente che alla data di scadenza del titolo viene erogata l'ultima cedola </li>
+                                <li><strong>ValNOM (€)</strong>: valore nominale acquistato (tiene conto solo del rapporto tra l'investimento e il prezzo di acquisto: v. meglio EsbINIZ)</li>
+                                <li><strong>Ind. </strong>: coefficiente di indicizzazione all'1 settembre 2025 (se il titolo non è indicizzato, il valore è 1: si tiene conto del differente tipo di inflazione, area Italia o area Euro)</li>
+                                <li><strong>CedLRD (€)</strong>: importo lordo della cedola semestrale attuale sulla base di quanto investito e, per i titoli indicizzati, dell'eventuale indicizzazione all'1 settembre 2025</li>
                                 <li><strong>CedNTT (€)</strong>: importo netto (tassazione 12,5%) della cedola semestrale sulla base di quanto investito</li>
-                                <li><strong>RateoLRD (€) </strong>: rateo lordo della prima cedola maturata che va corrisposto all'alienante </li>
+                                <li><strong>RateoLRD (€) </strong>: rateo lordo della prima cedola maturata che va corrisposto all'alienante (i btp sono infatti negoziati tutti in "corso secco")</li>
                                 <li><strong>RateoNTT (€) </strong>: rateo netta della prima cedola maturata che va corrisposto all'alienante </li>
-                                <li><strong>EsbINIZ </strong>: esborso iniziale, pari alla somma dell'investimento e del rateo netto (RateoNTT) </li>
-                                <li><strong>RicTOT (€)</strong>: ricavo totale alla scadenza</li>
-                                <li><strong>GuadTOTLRD (€)</strong>: guadagno totale lordo alla scadenza (ottenuto considerando il solo prezzo d'acquisto)</li>
-                                <li><strong>GuadTOTNTT (€)</strong>: guadagno totale netto alla scadenza (ottenuto considerando il prezzo d'acquisto e la tassa del 12,5%)</li>
-                                <li><strong>RendLRD (%)</strong>: rendimento effettivo dell'investimento (ottenuto considerando il solo prezzo d'acquisto)</li>
-                                <li><strong>RendNTT (%)</strong>: rendimento effettivo dell'investimento (ottenuto considerando il prezzo d'acquisto e la tassa del 12,5%)</li>
+                                <li><strong>EsbINIZ </strong>: esborso iniziale, pari alla somma dell'investimento, del rateo netto (RateoNTT) e, per i titoli indicizzati, della rivalutazione del capitale </li>
+                                <li><strong>RicTOT (€)</strong>: ricavo totale alla scadenza (tiene conto cioè di qualsiasi somma versata all'acquirente del titolo)</li>
+                                <li><strong>GuadTOTLRD (€)</strong>: guadagno totale lordo alla scadenza (cioè la differenza tra il ricavo totale e l'esborso iniziale)</li>
+                                <li><strong>GuadTOTNTT (€)</strong>: guadagno totale netto alla scadenza (cioè il ricavo totale decurtato della tassa del 12,5%, che si applica anche alle plusvalenze di capitale)</li>
+                                <li><strong>RendLRD (%)</strong>: rendimento effettivo lordo dell'investimento (cioè il rapporto tra ricavo totale ed esborso iniziale)</li>
+                                <li><strong>RendNTT (%)</strong>: rendimento effettivo netto dell'investimento (cioè il rendimento effettivo lordo decurtato della tassa del 12,5%)</li>
                                 <li><strong>ValoreATT (€)</strong>: esborso iniziale attualizzato all'inflazione indicata in input</li>
-                                <li><strong>RendLRDdefl (%)</strong>: rendimento effettivo lordo dell'investimento deflazionato (ottenuto considerando il prezzo d'acquisto e l'inflazione annua inserita in input)</li>
-                                <li><strong>RendNTTdefl (%)</strong>: rendimento effettivo netto dell'investimento deflazionato (ottenuto considerando il prezzo d'acquisto, la tassa del 12,5% e l'inflazione annua inserita in input)</li>
+                                <li><strong>RendLRDdefl (%)</strong>: rendimento effettivo lordo dell'investimento deflazionato (ottenuto considerando l'inflazione annua inserita in input)</li>
+                                <li><strong>RendNTTdefl (%)</strong>: rendimento effettivo netto dell'investimento deflazionato (ottenuto considerando l'inflazione annua inserita in input)</li>
                                 <li><strong>RendLRDdeflANN (%)</strong>: rendimento effettivo lordo dell'investimento deflazionato diviso per il numero di anni rimanenti</li>
                                 <li><strong>RendNTTdeflANN (%)</strong>: rendimento effettivo lordo dell'investimento deflazionato diviso per il numero di anni rimanenti</li>
-                                <li><strong>VUOTO</strong>: il sistema restituisce un campo vuoto quando non è presente alcun dato (ad es. nei giorni in cui la borsa è aperta, prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
+                                <li><strong>VUOTO</strong>: il sistema restituisce un campo vuoto quando non è presente alcun dato (ad es. nei giorni in cui i mercati sono aperti, qualche ora prima dell'orario di apertura non è presente il dato relativo al prezzo ufficiale; o ancora, per alcune tipologie di titoli non è strutturalmente presente una cedola)</li>
                             </ul>
                         {% endif %}
                     </section>

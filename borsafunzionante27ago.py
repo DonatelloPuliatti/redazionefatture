@@ -130,7 +130,7 @@ def borsa():
             .str.replace(".", "", regex=False)
             .str.replace(",", ".", regex=False)
         )
-        df["Cedola (%)"] = pd.to_numeric(df["Cedola (%)"], errors="coerce").fillna(0.0)
+        df["Cedola (%)"] = pd.to_numeric(df["Cedola (%)"], errors="coerce")
         pd.set_option("display.float_format", lambda x: f"{x:.5f}")
 
         df["Scadenza"] = pd.to_datetime(df["Scadenza"], dayfirst=True, errors="coerce").dt.normalize()
