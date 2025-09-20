@@ -4,14 +4,13 @@ from redazionefatture import *
 from redazionefatturesenzafile import *
 from compensidm2002 import *
 from borsa import *
+from configurazionegiuridicafattispecie import *
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
     return render_template("home.html")
-
-
 
 @app.route("/login_redazionefatture", methods=["GET", "POST"])
 def login_redazionefatture():
@@ -36,9 +35,21 @@ def gestionalefatture():
     return render_template("placeholder.html", titolo="Funzione in lavorazione")
 
 
-@app.route("/configurazionegiuridicafattispecie", methods=["GET", "POST"])
-def configurazionegiuridicafattispecie():
-    return render_template("placeholder.html", titolo="Funzione in lavorazione")
+@app.route("/login_configurazionegiuridicafattispecie", methods=["GET", "POST"])
+def login_configurazionegiuridicafattispecie():
+    if request.method == "POST":
+        password = request.form.get("password")
+        if password == "Federico2017":
+            return redirect(url_for('a1b1c1d1e1f1_route'))
+        else:
+            return "Password errata. <a href='/login_configurazionegiuridicafattispecie'>Riprova</a>."
+    return render_template("login_configurazionegiuridicafattispecie.html")
+
+
+@app.route("/a1b1c1d1e1f1", methods=["GET", "POST"])
+def a1b1c1d1e1f1_route():
+    return configurazionegiuridicafattispecie()
+
 
 @app.route("/login_compensidm2002", methods=["GET", "POST"])
 def login_compensidm2002():
