@@ -6,7 +6,7 @@ from openai import OpenAI
 import pandas as pd
 
 def configurazionegiuridicafattispecie():
-    API_KEY = "***REMOVED***"
+    API_KEY = os.getenv("OPENAI_API_KEY", "***REMOVED***")
     MODEL = "gpt-4o"
     client = OpenAI(api_key=API_KEY)
     PROMPT = """Per ciascun periodo del testo estrai le formule logiche nella forma "P1, P2.., Pn -> E1, E2..., En".
@@ -14,8 +14,8 @@ def configurazionegiuridicafattispecie():
     - Usa congiunzione, disgiunzione, negazione (simboli consentiti: &, |, ¬, -> oppure AND, OR, NOT, ->).
     - Analizza TUTTI i periodi, anche se sembrano definitori o indicativi (nel diritto spesso indicano doveri).
     - Mantieni coerenza tra variabili nelle formule e nel dizionario (se una variabile ricorre, definiscila una volta sola).
-    - Definizioni P*/E* dettagliate e granulari. Ad es., spesso un avverbio potrebbe dar luogo ad un presupposto autonomo (intenzionalmente, arbitrariamente, ecc.).
-    - Tieni presente che, spesso, i periodi successivi al primo introducono delle deroghe: le relative formule, quindi, devono riprendere l'insieme dei presupposti della regola di cui al primo periodo.
+    - Definizioni P*/E* massimamente dettagliate e granulari. Ad es., spesso un avverbio potrebbe dar luogo ad un presupposto autonomo (come 'intenzionalmente', 'arbitrariamente', ecc.), ma anche un attributo (come "mobile" in "cosa mobile").
+    - Tieni presente che, spesso, i periodi successivi al primo intr oducono delle deroghe: le relative formule, quindi, devono riprendere l'insieme dei presupposti della regola di cui al primo periodo.
 
     Devi restituire SOLO JSON valido con ESATTAMENTE queste due chiavi (niente altro):
 
