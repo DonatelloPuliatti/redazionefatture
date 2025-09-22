@@ -1,0 +1,15 @@
+# Secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
