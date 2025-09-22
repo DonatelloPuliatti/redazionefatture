@@ -4,171 +4,69 @@
     <meta charset="UTF-8">
     <title>Applicativo per convertire i testi normativi in formule logiche e per configurare automaticamente le fattispecie giuridiche</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 0; }
+        h2 { text-align: center; color: #4CAF50; margin-top: 20px; }
+        form { width: 1250px; max-width: 95%; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; background-color: #fff; }
+        .row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: space-between; }
+        fieldset { flex: 1; min-width: 300px; border: 1px solid #ccc; border-radius: 8px; padding: 15px; background-color: #fdfdfd; margin-bottom: 20px; }
+        legend { font-weight: bold; color: #4CAF50; padding: 0 10px; }
+        input[type="text"] { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; transition: border-color 0.3s ease-in-out; }
+        input[type="text"]:focus { border-color: #4CAF50; outline: none; }
+        .radio-group { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+        .radio-group label { display: block; margin-bottom: 0; line-height: 1.4; }
+        input[type="submit"] { background-color: #4CAF50; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 200px; display: block; margin: 20px auto; }
+        input[type="submit"]:hover { background-color: #45a049; }
+        .result { text-align: center; font-size: 20px; font-weight: bold; margin-top: 20px; color: #4CAF50; }
+        .fieldset-container { position: relative; display: inline-block; }
+        #altro-container { display: none; margin-top: 10px; }
+        #altro-container input { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; transition: border-color 0.3s ease-in-out; }
+        #altro-container input:focus { border-color: #4CAF50; outline: none; }
+        .errore { color: red; padding: 10px; font-weight: bold; text-align: center; font-size: 1.2em; margin: 20px auto; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        .input-field { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; transition: border-color 0.3s ease-in-out; }
+        .input-field:focus { border-color: #4CAF50; outline: none; }
+        ul.esiti { text-align:left; max-width: 1100px; margin: 10px auto 30px; }
+        ul.esiti li { margin: 6px 0; }
+        .articolo-titolo { margin-top: 10px; font-weight: bold; color:#333; }
+        .articolo-testo  { white-space: pre-wrap; text-align: left; max-width: 1100px; margin: 8px auto 20px; }
+
+        /* Box risultato */
+        .result-box{
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 22px 26px;
+            background: #fff;
+            border: 1px solid #cfd8dc;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.06);
+            text-align: left;            /* override del center della classe .result */
         }
 
-        h2 {
-            text-align: center;
-            color: #4CAF50;
-            margin-top: 20px;
+        /* Testo articolo: giustificato e a capo naturale */
+        .articolo-testo{
+            white-space: pre-wrap;
+            text-align: justify;
+            margin: 8px 0 18px;
         }
 
-        form {
-            width: 1250px;
-            max-width: 95%;
-            margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-color: #fff;
+        /* Lista esiti: sinistra, ma il testo interno giustificato */
+        ul.esiti{
+            max-width: 100%;
+            margin: 8px 0 0;
+            padding-left: 1.2rem;
+            text-align: left;
         }
 
-        .row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-
-        fieldset {
-            flex: 1;
-            min-width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 15px;
-            background-color: #fdfdfd;
-            margin-bottom: 20px;
-        }
-
-        legend {
-            font-weight: bold;
-            color: #4CAF50;
-            padding: 0 10px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        input[type="text"]:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-
-        .radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .radio-group label {
-            display: block;
-            margin-bottom: 0;
-            line-height: 1.4;
-        }
-
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 200px;
-            display: block;
-            margin: 20px auto;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-
-        .result {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 20px;
-            color: #4CAF50;
-        }
-
-        .fieldset-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        #altro-container {
-            display: none; /* Inizialmente nascosto */
-            margin-top: 10px;
-        }
-
-        #altro-container input {
-            width: 100%; /* Uniformare con gli altri input */
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        #altro-container input:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-
-        .errore {
-            color: red;
-            padding: 10px;
-            font-weight: bold;
-            text-align: center;
-            font-size: 1.2em;
-            margin: 20px auto;
-        }
-
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        ul.esiti li{
+            margin: 6px 0;
+            text-align: justify;
         }
 
 
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        /* Stile coerente con altri input */
-
-        .input-field {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        .input-field:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
 
 
     </style>
-
 </head>
 <body>
 
@@ -178,7 +76,7 @@
         <fieldset>
             <legend id="intro-title">Presentazione</legend>
 
-            <p>Questo applicativo consente di convertire testi normativi in formule logiche e a configurare giuridicamente le fattispecie concrete.</p>
+            <p>Questo applicativo consente di convertire testi normativi in formule logiche e di configurare giuridicamente le fattispecie concrete.</p>
             <p>Selezionando l'opzione 'Conversione di testi normativi in formule logiche', il sistema restituisce:</p>
             <p>1) la struttura logica della fattispecie giuridica astratta inserita in input, attraverso una sequenza di formule del tipo P1, P2...Pn → E1, E2...En, dove le P rappresentano i presupposti e le E gli effetti giuridici;</p>
             <p>2) le corrispondenze dei simboli P1, P2...Pn, E1, E2....En ai presupposti/effetti giuridici</p>
@@ -194,8 +92,8 @@
             <fieldset class="fieldset-container">
                 <legend id="seleziona">Seleziona l'opzione di tuo interesse</legend>
                 <div class="radio-group">
-                    <label><input type="radio" name="tipologia" value="conversione" required > Conversione di testi normativi in formule logiche  </label>
-                    <label><input type="radio" name="tipologia" value="configurazione" > Configurazione giuridica delle fattispecie concrete </label>
+                    <label><input type="radio" name="tipologia" value="conversione" required> Conversione di testi normativi in formule logiche</label>
+                    <label><input type="radio" name="tipologia" value="configurazione"> Configurazione giuridica delle fattispecie concrete</label>
                 </div>
             </fieldset>
         </div>
@@ -204,32 +102,78 @@
         </div>
     </form>
 
+    {% if selected_option == 'configurazione' and not numeroarticolo_scelto %}
+    <form method="POST" id="configurazione">
+        <input type="hidden" name="form_id" value="configurazione-selezione-corpus">
+        <input type="hidden" name="tipologia" value="configurazione">
+
+        <fieldset>
+            <legend>Seleziona un articolo tra quelli sotto elencati</legend>
+
+            {% if articoli_error %}
+                <div class="errore">{{ articoli_error }}</div>
+            {% endif %}
+
+            <div class="radio-group">
+                {% for art in articoli %}
+                    <label>
+                        <input type="radio" name="numeroarticolo" value="{{ art }}" required>
+                        {{ art }}
+                    </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <div class="buttons">
+            <input type="submit" name="azione" value="Vai al risultato">
+        </div>
+    </form>
+    {% endif %}
+
+    {% if numeroarticolo_scelto and domande_presupposti %}
+    <form method="POST" id="configurazione-domande">
+        <input type="hidden" name="form_id" value="configurazione-domande">
+        <input type="hidden" name="tipologia" value="configurazione">
+        <input type="hidden" name="numeroarticolo" value="{{ numeroarticolo_scelto }}">
+
+        <fieldset>
+            <legend>Verifica della sussistenza dei presupposti di cui all'{{ numeroarticolo_scelto }}</legend>
+            <div class="radio-group">
+                {% for var, domanda in domande_presupposti %}
+                    <label>
+                        {{ domanda }}<br>
+                        <input type="radio" name="presupposto_{{ var }}" value="si" required> Sì
+                        <input type="radio" name="presupposto_{{ var }}" value="no" required> No
+                    </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <div class="buttons">
+            <input type="submit" name="azione" value="Vai al risultato">
+        </div>
+    </form>
+    {% endif %}
 
     {% if selected_option == 'conversione' %}
-        <form method="POST" id="conversione" >
-            <input type="hidden" name="form_id" value="conversione">
-            <div class="row">
-
-                <fieldset>
-                    <legend>
-                        Inserisci il testo normativo che vuoi convertire
-                    </legend>
-                    <textarea name="testonormativo"
+    <form method="POST" id="conversione">
+        <input type="hidden" name="form_id" value="conversione">
+        <div class="row">
+            <fieldset>
+                <legend>Inserisci il testo normativo che vuoi convertire</legend>
+                <textarea name="testonormativo"
                           placeholder="Inserisci qui il testo normativo"
                           class="input-field"
                           rows="6"
                           required
                           oninvalid="this.setCustomValidity('Campo obbligatorio: inserisci un testo')"
                           oninput="this.setCustomValidity('')"></textarea>
-
-                </fieldset>
-
-
-            </div>
-            <div class="buttons">
-                <input type="submit" name="azione" value="Vai all'esito">
-            </div>
-        </form>
+            </fieldset>
+        </div>
+        <div class="buttons">
+            <input type="submit" name="azione" value="Vai all'esito">
+        </div>
+    </form>
     {% endif %}
 
     {% if solo_formule %}
@@ -239,24 +183,39 @@
                 <th style="padding: 8px; text-align: left;">Formule logiche</th>
                 <th style="padding: 8px; text-align: left;">Dizionario</th>
             </tr>
-
             <tr>
-                <td style="vertical-align: top; padding: 8px;">
-                    <pre>{{ solo_formule }}</pre>
-                </td>
-                <td style="vertical-align: top; padding: 8px;">
-                    <pre>{{ solo_dizionario }}</pre>
-                </td>
+                <td style="vertical-align: top; padding: 8px;"><pre>{{ solo_formule }}</pre></td>
+                <td style="vertical-align: top; padding: 8px;"><pre>{{ solo_dizionario }}</pre></td>
             </tr>
         </table>
     </div>
     {% endif %}
 
+    {% if esiti_messaggi %}
 
+        <div class="result">
+            <div class="result-box">
+                <h3>ESITO DELL'ELABORAZIONE</h3>
+                <h4>La fattispecie concreta è stata confrontata con la fattispecie astratta di cui all'{{ numeroarticolo_scelto }}, il cui testo è sotto riportato.</h4>
+
+                {% if testo_articolo %}
+                    <div class="articolo-testo">"{{ testo_articolo }}"</div>
+                {% endif %}
+
+                <h4>All'esito di tale confronto, è possibile pervenire alle seguenti conclusioni.</h4>
+                <ul class="esiti">
+                    {% for m in esiti_messaggi %}
+                        <li>{{ m }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
 
 
 </body>
 </html>
+
 
 
 
