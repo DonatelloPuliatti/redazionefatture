@@ -1,0 +1,2 @@
+regex:sk-[A-Za-z0-9_-]{20,}==>***REMOVED***
+regex:OPENAI_API_KEY\s*=\s*['\x22]?[A-Za-z0-9_-]{10,}['\x22]?==>OPENAI_API_KEY=***REMOVED***
