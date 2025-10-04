@@ -281,6 +281,8 @@ def configurazionegiuridicafattispecie():
                                 Sei un giurista che discute sul contenuto del seguente documento.
                                 Devi rispondere solo utilizzando il testo del documento, senza mai
                                 attingere a conoscenze esterne o interpretazioni generiche.
+                                Spesso ti viene chiesto di indicare esattamente le massime di riferimento: devi essere precisissimo.
+                                Spesso ti può essere chiesto di indicare esattamente quali massime riportano o meno un principio di diritto: devi essere precisissimo e completo.
                                 Mantieni lo stile formale, chiaro e sintetico.
                                 Documento:
                                 \"\"\"{testo_pdf[:8000]}\"\"\"  # (limite di sicurezza)

@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Applicativo per convertire i testi normativi in formule logiche e per configurare automaticamente le fattispecie giuridiche</title>
+    <title>Applicativo per lavorare sui documenti giuridici</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 0; }
         h2 { text-align: center; color: #4CAF50; margin-top: 20px; }
@@ -70,20 +70,15 @@
 </head>
 <body>
 
-    <h2>Applicativo per convertire i testi normativi in formule logiche e per configurare giuridicamente le fattispecie concrete</h2>
+    <h2>Applicativo sperimentale per lavorare su contenuti giuridici (norme, sentenze, pareri, ecc.)</h2>
 
     <form aria-labelledby="intro-title">
         <fieldset>
             <legend id="intro-title">Presentazione</legend>
 
-            <p>Questo applicativo consente di convertire testi normativi in formule logiche e di configurare giuridicamente le fattispecie concrete.</p>
-            <p>Selezionando l'opzione 'Conversione di testi normativi in formule logiche', il sistema restituisce:</p>
-            <p>1) la struttura logica della fattispecie giuridica astratta inserita in input, attraverso una sequenza di formule del tipo P1, P2...Pn → E1, E2...En, dove le P rappresentano i presupposti e le E gli effetti giuridici;</p>
-            <p>2) le corrispondenze dei simboli P1, P2...Pn, E1, E2....En ai presupposti/effetti giuridici</p>
-            <p>Selezionando l'opzione 'Configurazione giuridica delle fattispecie concrete', il sistema: </p>
-            <p>1) dapprima chiederà quale sia il corpus di norme rispetto al quale effettuare la configurazione giuridica;</p>
-            <p>2) successivamente, farà le domande necessarie per acquisire se nella fattispecie concreta sussistano/non sussistano determinati presupposti;</p>
-            <p>3) infine, restituirà la configurazione giuridica della fattispecie concreta in base al corpus normativo selezionato in input.</p>
+            <p>'Conversione di testi normativi in formule logiche' consente di estrarre la struttura logica delle disposizioni incriminatrici del codice penale'</p>
+            <p>'Configurazione giuridica delle fattispecie concrete (approccio deterministico)' consente di configurare giuridicamente una fattispecie concreta confrontandola con quella astratta strutturata logicamente</p>
+            <p>'Analisi documentale tramite GPT' consente di instaurare una conversazione su documenti molto ampi (es. raccolte di massime, di pareri, ecc.)</p>
         </fieldset>
     </form>
 
@@ -93,8 +88,8 @@
                 <legend id="seleziona">Seleziona l'opzione di tuo interesse</legend>
                 <div class="radio-group">
                     <label><input type="radio" name="tipologia" value="conversione" required> Conversione di testi normativi in formule logiche</label>
-                    <label><input type="radio" name="tipologia" value="configurazione"> Configurazione giuridica delle fattispecie concrete deterministica</label>
-                    <label><input type="radio" name="tipologia" value="configurazionegpt"> Configurazione giuridica delle fattispecie concrete tramite GPT</label>
+                    <label><input type="radio" name="tipologia" value="configurazione"> Configurazione giuridica delle fattispecie concrete (approccio deterministico)</label>
+                    <label><input type="radio" name="tipologia" value="configurazionegpt"> Analisi documentale tramite GPT</label>
                 </div>
             </fieldset>
         </div>
