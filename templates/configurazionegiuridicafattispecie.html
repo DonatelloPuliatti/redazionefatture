@@ -93,7 +93,8 @@
                 <legend id="seleziona">Seleziona l'opzione di tuo interesse</legend>
                 <div class="radio-group">
                     <label><input type="radio" name="tipologia" value="conversione" required> Conversione di testi normativi in formule logiche</label>
-                    <label><input type="radio" name="tipologia" value="configurazione"> Configurazione giuridica delle fattispecie concrete</label>
+                    <label><input type="radio" name="tipologia" value="configurazione"> Configurazione giuridica delle fattispecie concrete deterministica</label>
+                    <label><input type="radio" name="tipologia" value="configurazionegpt"> Configurazione giuridica delle fattispecie concrete tramite GPT</label>
                 </div>
             </fieldset>
         </div>
@@ -172,6 +173,63 @@
         </div>
         <div class="buttons">
             <input type="submit" name="azione" value="Vai all'esito">
+        </div>
+    </form>
+    {% endif %}
+
+    {% if selected_option == 'configurazionegpt' %}
+    <form method="POST" id="configurazionegpt-form">
+        <input type="hidden" name="form_id" value="configurazionegpt">
+        <input type="hidden" name="tipologia" value="configurazionegpt">
+
+        <fieldset>
+            <legend>Seleziona l'argomento da discutere</legend>
+
+            <div class="radio-group">
+                {% for pdf in pdf_files %}
+                    {% set titolo = pdf.replace('.pdf', '').replace('.PDF', '').replace('_', ' ') %}
+                    <label>
+                        <input type="radio" name="pdf_scelto" value="{{ pdf }}" required>
+                        {{ titolo }}
+                    </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <div class="buttons">
+            <input type="submit" name="azione" value="Procedi con GPT">
+        </div>
+    </form>
+    {% endif %}
+
+    {% if selected_option == 'configurazionegpt' and pdf_scelto %}
+    <form method="POST" id="chatgpt-form">
+        <input type="hidden" name="form_id" value="configurazionegpt">
+        <input type="hidden" name="tipologia" value="configurazionegpt">
+        <input type="hidden" name="pdf_scelto" value="{{ pdf_scelto }}">
+        <input type="hidden" name="cronologia_json" value='{{ cronologia | tojson | safe }}'>
+
+        <fieldset>
+            <legend>Conversazione sul tema: {{ pdf_scelto.replace('.pdf','').replace('.PDF','') }}</legend>
+
+            {% if cronologia %}
+                <div style="max-width: 900px; margin: auto; background: #fff; border:1px solid #ccc; padding: 10px; border-radius: 8px;">
+                    {% for msg in cronologia %}
+                        {% if msg.role == 'user' %}
+                            <p><strong>Tu:</strong> {{ msg.content }}</p>
+                        {% else %}
+                            <p><strong>GPT:</strong> {{ msg.content }}</p>
+                        {% endif %}
+                        <hr>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <textarea name="domanda" placeholder="Scrivi la tua domanda..." rows="4" class="input-field" required></textarea>
+        </fieldset>
+
+        <div class="buttons">
+            <input type="submit" name="azione" value="Invia domanda">
         </div>
     </form>
     {% endif %}

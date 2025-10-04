@@ -7,7 +7,7 @@ import pandas as pd
 import re
 import ast
 from dotenv import load_dotenv
-import pdfplumber
+
 
 
 def configurazionegiuridicafattispecie():
@@ -252,73 +252,11 @@ def configurazionegiuridicafattispecie():
 
         if selected_option == "configurazionegpt":
             pdf_files = [f for f in os.listdir('.') if f.lower().endswith('.pdf')]
-            pdf_scelto = request.form.get("pdf_scelto")
-
-            if not pdf_scelto:
-                return render_template(
-                    "configurazionegiuridicafattispecie.html",
-                    selected_option=selected_option,
-                    pdf_files=pdf_files
-                )
-
-                # --- Caso 2: PDF scelto → inizializza conversazione ---
-            else:
-                # Estrai testo dal PDF
-                testo_pdf = ""
-                try:
-                    with pdfplumber.open(pdf_scelto) as pdf:
-                        for pagina in pdf.pages:
-                            testo_pdf += pagina.extract_text() + "\n"
-                except Exception as e:
-                    testo_pdf = f"Errore nel leggere il PDF: {e}"
-
-                load_dotenv()
-                API_KEY = os.getenv("OPENAI_API_KEY", "***REMOVED***")
-                MODEL = "gpt-4o"
-                client = OpenAI(api_key=API_KEY)
-
-                PROMPT_BASE = f"""
-                                Sei un giurista che discute sul contenuto del seguente documento.
-                                Devi rispondere solo utilizzando il testo del documento, senza mai
-                                attingere a conoscenze esterne o interpretazioni generiche.
-                                Mantieni lo stile formale, chiaro e sintetico.
-                                Documento:
-                                \"\"\"{testo_pdf[:8000]}\"\"\"  # (limite di sicurezza)
-                                """
-
-                # Ottieni eventuale domanda dell’utente
-                domanda = request.form.get("domanda")
-                cronologia = json.loads(request.form.get("cronologia_json", "[]"))
-
-
-
-                if domanda:
-                    # Aggiungi la domanda alla cronologia
-                    cronologia.append({"role": "user", "content": domanda})
-
-                    if len([m for m in cronologia if m["role"] == "user"]) <= 10:
-                        messages = [{"role": "system", "content": PROMPT_BASE}] + cronologia
-                        risposta = client.chat.completions.create(
-                            model="gpt-4o-mini",
-                            temperature=0.2,
-                            messages=messages
-                        )
-                        risposta_testo = risposta.choices[0].message.content
-                        cronologia.append({"role": "assistant", "content": risposta_testo})
-                    else:
-                        risposta_testo = "Hai raggiunto il numero massimo di 10 domande consentite."
-
-                else:
-                    risposta_testo = None
-
 
             return render_template(
                 "configurazionegiuridicafattispecie.html",
                 selected_option=selected_option,
-                pdf_files=pdf_files,
-                pdf_scelto=pdf_scelto,
-                cronologia=cronologia,
-                risposta=risposta_testo
+                pdf_files=pdf_files
             )
 
     return render_template(
